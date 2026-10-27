@@ -1,6 +1,6 @@
-# Poland trip planner 🇵🇱
+# Poland & Prague trip planner 🇵🇱🇨🇿🐶
 
-**Thu Nov 19 – Thu Dec 10, 2026**
+**Nov 20 – Dec 9, 2026** · Warsaw · Gdańsk · Kraków · Zakopane · Prague · by train, with our small dog
 
 👉 **Open it on your phone: https://jameswatling.github.io/poland-planning/**
 (Tip: Share → "Add to Home Screen" makes it feel like an app.)
@@ -19,10 +19,14 @@
 5. **Ideas** lists everything by city and status. Add your own with **＋ Add idea**.
 6. **Cities & travel times** shows every supported city with recommended nights, where to stay, and train times.
 
-### Your picks live on your phone until you share them
+### Saving your picks
 
-- **⋯ → Share my picks as a link**: send it to each other. Opening it merges the picks; the newer change wins.
-- **⋯ → Download / Copy changes**: give it to Claude to save into the shared plan for good.
+Changes show up instantly on your phone. To share them, tap **Save to shared plan** (the bar above the tabs).
+The first time, the phone asks for a GitHub token (steps are on screen: a fine-grained token for this repo with
+*Contents: read & write*). The site then updates for both of you in about 1–2 minutes. If a save would break something,
+it's rejected and your changes stay on your phone with the reason.
+
+No token? **⋯ → Share my picks as a link** (merges on the other phone) or **Download / Copy changes** for Claude.
 
 ## Claude does the research
 
@@ -31,7 +35,7 @@ Open this repo in Claude Code on your computer and ask, for example:
 | You say | What happens |
 |---|---|
 | "Research activities for Kraków and Gdańsk" | `research-city` runs a `city-researcher` subagent per city: web research → new ideas in `data/activities/` that match your interests and diet, skipping anything you rejected |
-| "Add Toruń for a night between Gdańsk and Warsaw" / "We must be in Kraków on Nov 28" | `plan-route` updates and regenerates the route |
+| "Give Prague an extra night" / "We must be in Kraków on Nov 28" | `plan-route` updates and regenerates the route |
 | "Check real train times" / "Find Airbnbs in Kazimierz" | `research-logistics` |
 | "Add the ice rink at Rynek" | `add-idea` |
 | "Plan a relaxed Saturday in Gdańsk" | `plan-day` |
@@ -55,6 +59,6 @@ Every push to `main` is validated and deployed by `.github/workflows/pages.yml`.
 ## Still to fill in
 
 ✈️ **Flights are booked:** LOT LO 22 LAX → WAW (Fri Nov 20, 4:10 PM → Sat Nov 21, 12:45 PM) and LO 23 WAW → LAX (Wed Dec 9, 4:40 PM → 8:10 PM).
-Trains and Airbnbs are still **placeholders** generated from the route (marked "to book" / "not booked" on the site).
-The cities and nights are a first draft. Prices, opening hours and train times are approximate. Poznań, Toruń, Zakopane,
-Łódź and Lublin are in the catalog but have no activities yet.
+Trains and dog-friendly Airbnbs are still **placeholders** generated from the route (marked "to book" / "not booked").
+The nights per city are a first draft. Prices, opening hours, train times and dog rules are approximate, so run
+`research-city` / `research-logistics` to verify them.

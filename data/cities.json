@@ -1,111 +1,279 @@
 {
   "warsaw": {
-    "kind": "city", "name": "Warsaw", "short": "WAW", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#dc2626", "lat": 52.2297, "lng": 21.0122,
+    "kind": "city",
+    "name": "Warsaw",
+    "short": "WAW",
+    "tz": "Europe/Warsaw",
+    "currency": "PLN",
+    "color": "#dc2626",
+    "lat": 52.2297,
+    "lng": 21.0122,
     "file": "data/activities/warsaw.json",
-    "nights": { "min": 2, "ideal": 3, "max": 5 },
+    "nights": {
+      "min": 2,
+      "ideal": 3,
+      "max": 5
+    },
     "description": "The capital: rebuilt Old Town, world-class WWII and Jewish history museums, Chopin, and a big modern food scene. The main international airport.",
-    "airport": { "code": "WAW", "name": "Warsaw Chopin Airport (WAW)", "address": "Żwirki i Wigury 1, 00-906 Warszawa", "lat": 52.1657, "lng": 20.9671 },
-    "station": { "name": "Warszawa Centralna", "address": "Aleje Jerozolimskie 54, 00-024 Warszawa", "lat": 52.2289, "lng": 21.0032 },
+    "airport": {
+      "code": "WAW",
+      "name": "Warsaw Chopin Airport (WAW)",
+      "address": "Żwirki i Wigury 1, 00-906 Warszawa",
+      "lat": 52.1657,
+      "lng": 20.9671
+    },
+    "station": {
+      "name": "Warszawa Centralna",
+      "address": "Aleje Jerozolimskie 54, 00-024 Warszawa",
+      "lat": 52.2289,
+      "lng": 21.0032
+    },
     "stayAreas": [
-      { "id": "srodmiescie", "name": "Śródmieście (city centre)", "lat": 52.2297, "lng": 21.0122, "description": "Central, next to the main station and the Palace of Culture. Easy for trains; busy." },
-      { "id": "powisle", "name": "Powiśle", "lat": 52.2395, "lng": 21.0275, "description": "Leafy and trendy, near the river, cafés and the Copernicus Centre. Walkable to the Old Town." },
-      { "id": "old-town", "name": "Old Town / New Town", "lat": 52.2505, "lng": 21.0105, "description": "Postcard-pretty and right by the Christmas market, but touristy and further from the station." }
-    ]
-  },
-  "krakow": {
-    "kind": "city", "name": "Kraków", "short": "KRK", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#d97706", "lat": 50.0614, "lng": 19.9366,
-    "file": "data/activities/krakow.json",
-    "nights": { "min": 3, "ideal": 4, "max": 6 },
-    "description": "The medieval royal capital: Wawel, the Main Square, Kazimierz, and a base for Auschwitz, Wieliczka and Zakopane. Very vegan-friendly.",
-    "airport": { "code": "KRK", "name": "Kraków Airport (KRK)", "address": "Kapitana Mieczysława Medweckiego 1, 32-083 Balice", "lat": 50.0777, "lng": 19.7848 },
-    "station": { "name": "Kraków Główny", "address": "Pawia 5a, 31-154 Kraków", "lat": 50.0681, "lng": 19.9474 },
-    "stayAreas": [
-      { "id": "old-town", "name": "Old Town (Stare Miasto)", "lat": 50.0614, "lng": 19.9372, "description": "Inside the Planty ring, walk to everything and the Christmas market. Can be noisy at night." },
-      { "id": "kazimierz", "name": "Kazimierz", "lat": 50.051, "lng": 19.945, "description": "Historic Jewish quarter with the best cafés, bars and vegan food. 15 min walk to the Main Square." },
-      { "id": "podgorze", "name": "Podgórze", "lat": 50.045, "lng": 19.953, "description": "Quieter, across the river from Kazimierz, near Schindler's Factory. Good value." }
+      {
+        "id": "srodmiescie",
+        "name": "Śródmieście (city centre)",
+        "lat": 52.2297,
+        "lng": 21.0122,
+        "description": "Central, next to the main station and the Palace of Culture. Easy for trains; busy."
+      },
+      {
+        "id": "powisle",
+        "name": "Powiśle",
+        "lat": 52.2395,
+        "lng": 21.0275,
+        "description": "Leafy and trendy, near the river, cafés and the Copernicus Centre. Walkable to the Old Town."
+      },
+      {
+        "id": "old-town",
+        "name": "Old Town / New Town",
+        "lat": 52.2505,
+        "lng": 21.0105,
+        "description": "Postcard-pretty and right by the Christmas market, but touristy and further from the station."
+      }
     ]
   },
   "gdansk": {
-    "kind": "city", "name": "Gdańsk", "short": "GDN", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#2563eb", "lat": 54.352, "lng": 18.6466,
+    "kind": "city",
+    "name": "Gdańsk",
+    "short": "GDN",
+    "tz": "Europe/Warsaw",
+    "currency": "PLN",
+    "color": "#2563eb",
+    "lat": 54.352,
+    "lng": 18.6466,
     "file": "data/activities/gdansk.json",
-    "nights": { "min": 2, "ideal": 3, "max": 5 },
+    "nights": {
+      "min": 2,
+      "ideal": 3,
+      "max": 5
+    },
     "description": "A Hanseatic port on the Baltic: colourful merchant houses, amber, Solidarity and WWII history, plus Sopot and Malbork Castle nearby.",
-    "airport": { "code": "GDN", "name": "Gdańsk Lech Wałęsa Airport (GDN)", "address": "Juliusza Słowackiego 200, 80-298 Gdańsk", "lat": 54.3776, "lng": 18.4662 },
-    "station": { "name": "Gdańsk Główny", "address": "Podwale Grodzkie 1, 80-895 Gdańsk", "lat": 54.3557, "lng": 18.644 },
+    "airport": {
+      "code": "GDN",
+      "name": "Gdańsk Lech Wałęsa Airport (GDN)",
+      "address": "Juliusza Słowackiego 200, 80-298 Gdańsk",
+      "lat": 54.3776,
+      "lng": 18.4662
+    },
+    "station": {
+      "name": "Gdańsk Główny",
+      "address": "Podwale Grodzkie 1, 80-895 Gdańsk",
+      "lat": 54.3557,
+      "lng": 18.644
+    },
     "stayAreas": [
-      { "id": "main-town", "name": "Main Town (Główne Miasto)", "lat": 54.3485, "lng": 18.651, "description": "The historic core around the Long Market and the river. Walk to almost everything." },
-      { "id": "old-town", "name": "Old Town (Stare Miasto)", "lat": 54.354, "lng": 18.648, "description": "Between the station and the shipyard; handy for trains and the Solidarity Centre." },
-      { "id": "sopot", "name": "Sopot", "lat": 54.4418, "lng": 18.5601, "description": "Seaside resort 20 min away by SKM train. Calm in winter; good for a slower stay." }
+      {
+        "id": "main-town",
+        "name": "Main Town (Główne Miasto)",
+        "lat": 54.3485,
+        "lng": 18.651,
+        "description": "The historic core around the Long Market and the river. Walk to almost everything."
+      },
+      {
+        "id": "old-town",
+        "name": "Old Town (Stare Miasto)",
+        "lat": 54.354,
+        "lng": 18.648,
+        "description": "Between the station and the shipyard; handy for trains and the Solidarity Centre."
+      },
+      {
+        "id": "sopot",
+        "name": "Sopot",
+        "lat": 54.4418,
+        "lng": 18.5601,
+        "description": "Seaside resort 20 min away by SKM train. Calm in winter; good for a slower stay."
+      }
     ]
   },
-  "wroclaw": {
-    "kind": "city", "name": "Wrocław", "short": "WRO", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#059669", "lat": 51.1079, "lng": 17.0385,
-    "file": "data/activities/wroclaw.json",
-    "nights": { "min": 2, "ideal": 3, "max": 4 },
-    "description": "A city of islands and bridges with a huge market square, bronze dwarfs, and one of Poland's best Christmas markets.",
-    "airport": { "code": "WRO", "name": "Wrocław Airport (WRO)", "address": "Graniczna 190, 54-530 Wrocław", "lat": 51.1027, "lng": 16.8858 },
-    "station": { "name": "Wrocław Główny", "address": "Piłsudskiego 105, 50-085 Wrocław", "lat": 51.0982, "lng": 17.0366 },
+  "krakow": {
+    "kind": "city",
+    "name": "Kraków",
+    "short": "KRK",
+    "tz": "Europe/Warsaw",
+    "currency": "PLN",
+    "color": "#d97706",
+    "lat": 50.0614,
+    "lng": 19.9366,
+    "file": "data/activities/krakow.json",
+    "nights": {
+      "min": 3,
+      "ideal": 4,
+      "max": 6
+    },
+    "description": "The medieval royal capital: Wawel, the Main Square, Kazimierz, and a base for Auschwitz, Wieliczka and Zakopane. Very vegan-friendly.",
+    "airport": {
+      "code": "KRK",
+      "name": "Kraków Airport (KRK)",
+      "address": "Kapitana Mieczysława Medweckiego 1, 32-083 Balice",
+      "lat": 50.0777,
+      "lng": 19.7848
+    },
+    "station": {
+      "name": "Kraków Główny",
+      "address": "Pawia 5a, 31-154 Kraków",
+      "lat": 50.0681,
+      "lng": 19.9474
+    },
     "stayAreas": [
-      { "id": "old-town", "name": "Old Town (Rynek)", "lat": 51.11, "lng": 17.032, "description": "Right by the Market Square and the Christmas market. 15 min walk to the station." },
-      { "id": "nadodrze", "name": "Nadodrze", "lat": 51.121, "lng": 17.03, "description": "Artsy, up-and-coming area north of the river with cafés and street art." },
-      { "id": "ostrow", "name": "Ostrów Tumski / Sand Island", "lat": 51.114, "lng": 17.042, "description": "Quiet and atmospheric by the cathedral, a short walk from the Rynek." }
-    ]
-  },
-  "poznan": {
-    "kind": "city", "name": "Poznań", "short": "POZ", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#db2777", "lat": 52.4064, "lng": 16.9252,
-    "file": "data/activities/poznan.json",
-    "nights": { "min": 1, "ideal": 2, "max": 3 },
-    "description": "A lively university city with a Renaissance square, the noon butting goats, St. Martin croissants, and the birthplace of the Polish state.",
-    "airport": { "code": "POZ", "name": "Poznań Ławica Airport (POZ)", "address": "Bukowska 285, 60-189 Poznań", "lat": 52.421, "lng": 16.8263 },
-    "station": { "name": "Poznań Główny", "address": "Dworcowa 2, 61-801 Poznań", "lat": 52.4019, "lng": 16.9119 },
-    "stayAreas": [
-      { "id": "old-town", "name": "Old Town (Stary Rynek)", "lat": 52.4083, "lng": 16.9335, "description": "Around the Old Market Square. Walk to everything." },
-      { "id": "jezyce", "name": "Jeżyce", "lat": 52.413, "lng": 16.905, "description": "Hip residential area with great cafés and food. A tram ride to the centre." }
-    ]
-  },
-  "torun": {
-    "kind": "city", "name": "Toruń", "short": "TOR", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#a16207", "lat": 53.0138, "lng": 18.5984,
-    "file": "data/activities/torun.json",
-    "nights": { "min": 1, "ideal": 1, "max": 2 },
-    "description": "A compact UNESCO Gothic old town, Copernicus's birthplace and gingerbread capital. A perfect one-night stop between Gdańsk and Warsaw.",
-    "station": { "name": "Toruń Główny", "address": "Kujawska 1, 87-100 Toruń", "lat": 53.0003, "lng": 18.6106 },
-    "stayAreas": [
-      { "id": "old-town", "name": "Old Town", "lat": 53.0103, "lng": 18.605, "description": "Stay inside the walls. The whole town is walkable." }
+      {
+        "id": "old-town",
+        "name": "Old Town (Stare Miasto)",
+        "lat": 50.0614,
+        "lng": 19.9372,
+        "description": "Inside the Planty ring, walk to everything and the Christmas market. Can be noisy at night."
+      },
+      {
+        "id": "kazimierz",
+        "name": "Kazimierz",
+        "lat": 50.051,
+        "lng": 19.945,
+        "description": "Historic Jewish quarter with the best cafés, bars and vegan food. 15 min walk to the Main Square."
+      },
+      {
+        "id": "podgorze",
+        "name": "Podgórze",
+        "lat": 50.045,
+        "lng": 19.953,
+        "description": "Quieter, across the river from Kazimierz, near Schindler's Factory. Good value."
+      }
     ]
   },
   "zakopane": {
-    "kind": "city", "name": "Zakopane", "short": "ZAK", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#0d9488", "lat": 49.2992, "lng": 19.9496,
+    "kind": "city",
+    "name": "Zakopane",
+    "short": "ZAK",
+    "tz": "Europe/Warsaw",
+    "currency": "PLN",
+    "color": "#0d9488",
+    "lat": 49.2992,
+    "lng": 19.9496,
     "file": "data/activities/zakopane.json",
-    "nights": { "min": 1, "ideal": 2, "max": 4 },
+    "nights": {
+      "min": 2,
+      "ideal": 3,
+      "max": 4
+    },
     "description": "The mountain town in the Tatras: wooden highlander architecture, cable cars, thermal pools, and possibly early snow.",
-    "station": { "name": "Zakopane (train & bus stations)", "address": "Chramcówki 35, 34-500 Zakopane", "lat": 49.3, "lng": 19.958 },
+    "station": {
+      "name": "Zakopane railway station",
+      "address": "Chramcówki 35, 34-500 Zakopane",
+      "lat": 49.3,
+      "lng": 19.958
+    },
     "stayAreas": [
-      { "id": "centre", "name": "Centre (near Krupówki)", "lat": 49.296, "lng": 19.95, "description": "Walk to Krupówki Street and the Gubałówka funicular." }
+      {
+        "id": "centre",
+        "name": "Centre (near Krupówki)",
+        "lat": 49.296,
+        "lng": 19.95,
+        "description": "Walk to Krupówki Street, the Gubałówka funicular and the station. Lively."
+      },
+      {
+        "id": "koscieliska",
+        "name": "Kościeliska Street area",
+        "lat": 49.2945,
+        "lng": 19.935,
+        "description": "Quieter, with traditional wooden villas and mountain views. 15 min walk to the centre."
+      }
     ]
   },
-  "lodz": {
-    "kind": "city", "name": "Łódź", "short": "ŁDZ", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#ea580c", "lat": 51.7592, "lng": 19.456,
-    "file": "data/activities/lodz.json",
-    "nights": { "min": 1, "ideal": 1, "max": 2 },
-    "description": "A post-industrial city of red-brick textile mills turned into museums and food halls, plus Piotrkowska Street and big murals.",
-    "airport": { "code": "LCJ", "name": "Łódź Airport (LCJ)", "address": "Generała Stanisława Maczka 35, 94-328 Łódź", "lat": 51.7219, "lng": 19.3981 },
-    "station": { "name": "Łódź Fabryczna", "address": "plac Bronisława Sałacińskiego 1, 90-001 Łódź", "lat": 51.77, "lng": 19.47 },
+  "prague": {
+    "kind": "city",
+    "name": "Prague",
+    "short": "PRG",
+    "tz": "Europe/Prague",
+    "currency": "CZK",
+    "color": "#c026d3",
+    "lat": 50.0755,
+    "lng": 14.4378,
+    "file": "data/activities/prague.json",
+    "nights": {
+      "min": 2,
+      "ideal": 3,
+      "max": 5
+    },
+    "description": "Czech capital (not Poland: crowns, not złoty). Gothic and baroque old town, the castle, Charles Bridge, and some of Europe's best Christmas markets.",
+    "airport": {
+      "code": "PRG",
+      "name": "Václav Havel Airport Prague (PRG)",
+      "address": "Aviatická, 161 08 Praha 6",
+      "lat": 50.1008,
+      "lng": 14.26
+    },
+    "station": {
+      "name": "Praha hlavní nádraží",
+      "address": "Wilsonova 300/8, 120 00 Praha 2",
+      "lat": 50.0831,
+      "lng": 14.4353
+    },
     "stayAreas": [
-      { "id": "piotrkowska", "name": "Piotrkowska Street", "lat": 51.768, "lng": 19.457, "description": "The main street, full of restaurants and bars." }
+      {
+        "id": "old-town",
+        "name": "Old Town (Staré Město)",
+        "lat": 50.0875,
+        "lng": 14.4213,
+        "description": "Steps from the Christmas markets and Charles Bridge. Busy and pricier."
+      },
+      {
+        "id": "mala-strana",
+        "name": "Malá Strana",
+        "lat": 50.088,
+        "lng": 14.403,
+        "description": "Romantic baroque quarter below the castle; quieter at night."
+      },
+      {
+        "id": "vinohrady",
+        "name": "Vinohrady",
+        "lat": 50.0755,
+        "lng": 14.443,
+        "description": "Leafy, local and very dog-friendly (Riegrovy sady park), with great vegan cafés. 10 min walk to the main station."
+      }
     ]
   },
-  "lublin": {
-    "kind": "city", "name": "Lublin", "short": "LUB", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#4f46e5", "lat": 51.2465, "lng": 22.5684,
-    "file": "data/activities/lublin.json",
-    "nights": { "min": 1, "ideal": 2, "max": 3 },
-    "description": "An authentic, less-touristy old town, the castle's Holy Trinity Chapel frescoes, and Majdanek nearby.",
-    "airport": { "code": "LUZ", "name": "Lublin Airport (LUZ)", "address": "Generała Wł. Andersa 1, 21-040 Świdnik", "lat": 51.2403, "lng": 22.7136 },
-    "station": { "name": "Lublin Główny", "address": "plac Dworcowy 1, 20-408 Lublin", "lat": 51.231, "lng": 22.568 },
-    "stayAreas": [
-      { "id": "old-town", "name": "Old Town", "lat": 51.248, "lng": 22.568, "description": "Cobbled lanes between the castle and the Kraków Gate." }
-    ]
+  "los-angeles": {
+    "kind": "home",
+    "name": "Los Angeles",
+    "short": "LA",
+    "tz": "America/Los_Angeles",
+    "currency": "USD",
+    "color": "#6b7280",
+    "lat": 34.0522,
+    "lng": -118.2437
   },
-  "los-angeles": { "kind": "home", "name": "Los Angeles", "short": "LA", "tz": "America/Los_Angeles", "currency": "USD", "color": "#7c3aed", "lat": 34.0522, "lng": -118.2437 },
-  "transit": { "kind": "transit", "name": "In transit", "short": "✈️", "tz": "America/Los_Angeles", "currency": "USD", "color": "#64748b" },
-  "unplanned": { "kind": "none", "name": "Not planned", "short": "?", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#a8a29e" }
+  "transit": {
+    "kind": "transit",
+    "name": "In transit",
+    "short": "✈️",
+    "tz": "America/Los_Angeles",
+    "currency": "USD",
+    "color": "#64748b"
+  },
+  "unplanned": {
+    "kind": "none",
+    "name": "Not planned",
+    "short": "?",
+    "tz": "Europe/Warsaw",
+    "currency": "PLN",
+    "color": "#a8a29e"
+  }
 }

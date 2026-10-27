@@ -1,17 +1,61 @@
 {
-  "interests": ["museums", "history", "christmas markets", "architecture", "views", "local food"],
+  "interests": [
+    "museums",
+    "history",
+    "christmas markets",
+    "architecture",
+    "views",
+    "local food"
+  ],
   "avoid": [],
   "travelers": [
-    { "name": "James", "diet": [], "notes": "" },
-    { "name": "Wife", "diet": ["vegan"], "notes": "Rename me." }
+    {
+      "name": "James",
+      "diet": [],
+      "notes": ""
+    },
+    {
+      "name": "Wife",
+      "diet": [
+        "vegan"
+      ],
+      "notes": "Rename me."
+    }
   ],
   "flexible": [
     "Food stops should have good vegan options (one of us is vegan, the other eats anything)",
     "Relaxed mornings: first activity around 9:30–10:00",
-    "One or two big things a day, not a checklist"
+    "One or two big things a day, not a checklist",
+    "We have a small dog: prefer dog-friendly places; museums are fine if one of us takes the dog for a walk"
   ],
   "lodging": {
-    "wants": ["walkable to the old town / main sights", "close to a tram or the train station", "quiet at night", "kitchen", "washing machine"],
-    "budgetPerNight": { "amount": 150, "currency": "USD" }
+    "wants": [
+      "dog-friendly (small dog)",
+      "walkable to the old town / main sights",
+      "close to a tram or the train station",
+      "quiet at night",
+      "kitchen",
+      "washing machine"
+    ],
+    "budgetPerNight": {
+      "amount": 150,
+      "currency": "USD"
+    }
+  },
+  "pets": [
+    {
+      "name": "Doggie",
+      "type": "dog",
+      "size": "small",
+      "notes": "Rename me. Travels in a carrier on trains."
+    }
+  ],
+  "transport": {
+    "prefer": [
+      "train"
+    ],
+    "avoid": [
+      "flight"
+    ]
   }
 }

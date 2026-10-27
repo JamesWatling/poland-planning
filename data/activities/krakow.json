@@ -22,7 +22,8 @@
     "tags": [
       "walk"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "krk-st-marys",
@@ -44,7 +45,8 @@
       "approx": true
     },
     "wiki": "St._Mary's_Basilica,_Kraków",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "krk-wawel",
@@ -71,7 +73,8 @@
     },
     "wiki": "Wawel_Castle",
     "addedBy": "claude",
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "krk-kazimierz",
@@ -97,7 +100,8 @@
       "walk",
       "history"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "krk-zapiekanka",
@@ -123,7 +127,8 @@
       "cheap eats"
     ],
     "addedBy": "claude",
-    "vegan": "limited"
+    "vegan": "limited",
+    "dog": "yes"
   },
   {
     "id": "krk-schindler",
@@ -150,7 +155,8 @@
     },
     "wiki": "Oskar_Schindler's_Enamel_Factory",
     "addedBy": "claude",
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "krk-wieliczka",
@@ -182,7 +188,8 @@
       "open": "09:00",
       "close": "17:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "krk-auschwitz",
@@ -214,34 +221,8 @@
       "open": "08:00",
       "close": "15:00"
     },
-    "hoursApprox": true
-  },
-  {
-    "id": "krk-zakopane",
-    "title": "Zakopane mountain day trip",
-    "type": "daytrip",
-    "city": "krakow",
-    "status": "idea",
-    "description": "The winter capital in the Tatras: Krupówki Street, the Gubałówka funicular and oscypek smoked cheese. About 2h each way by bus or car.",
-    "address": "Krupówki, 34-500 Zakopane",
-    "lat": 49.2969,
-    "lng": 19.9507,
-    "duration": 360,
-    "maxDuration": 480,
-    "suggestedStart": "10:30",
-    "suggestedDate": "2026-11-29",
-    "price": {
-      "amount": 80,
-      "currency": "PLN",
-      "per": "person",
-      "approx": true
-    },
-    "wiki": "Zakopane",
-    "tags": [
-      "mountains",
-      "full day"
-    ],
-    "addedBy": "claude"
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "krk-pierogi",
@@ -267,7 +248,8 @@
       "hands-on"
     ],
     "addedBy": "claude",
-    "vegan": "unknown"
+    "vegan": "unknown",
+    "dog": "unknown"
   },
   {
     "id": "krk-underground",
@@ -294,7 +276,8 @@
       "open": "10:00",
       "close": "20:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "krk-xmas",
@@ -319,7 +302,8 @@
       "christmas",
       "evening"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "krk-nowa-huta",
@@ -341,7 +325,8 @@
       "approx": true
     },
     "wiki": "Nowa_Huta",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "unknown"
   },
   {
     "id": "krk-kosciuszko",
@@ -367,7 +352,8 @@
       "views",
       "sunset"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "unknown"
   },
   {
     "id": "krk-jazz",
@@ -392,6 +378,7 @@
       "music",
       "evening"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "unknown"
   }
 ]

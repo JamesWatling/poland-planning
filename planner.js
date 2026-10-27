@@ -5,6 +5,7 @@ export const ACTIVITY_TYPES = ['sight', 'museum', 'food', 'tour', 'daytrip', 'na
 export const STATUSES = ['idea', 'maybe', 'yes', 'no', 'planned', 'booked'];
 export const SCHEDULED = new Set(['yes', 'planned', 'booked']);
 export const VEGAN = ['great', 'options', 'limited', 'none', 'unknown'];
+export const DOG = ['yes', 'carrier', 'no', 'unknown'];
 
 // ---------- dates & time zones ----------
 
@@ -286,16 +287,18 @@ export function regenerateRoute({ route, cities, routes, nights, arrDate }) {
 
 // ---------- preferences ----------
 
-/** How an item matches our interests, dislikes and diet. */
+/** How an item matches our interests, dislikes, diet and dog. */
 export function prefMatch(it, prefs) {
-  if (!prefs) return { love: [], avoid: [], diet: null, excluded: false };
+  if (!prefs) return { love: [], avoid: [], diet: null, dog: null, excluded: false };
   const text = [it.title, it.description, it.type, it.notes, ...(it.tags || [])].join(' ').toLowerCase();
   const has = (kw) => { const k = kw.toLowerCase().trim(); return k && (text.includes(k) || (k.length > 4 && k.endsWith('s') && text.includes(k.slice(0, -1)))); };
   const avoid = (prefs.avoid || []).filter(has);
   const love = (prefs.interests || []).filter(has);
   const vegan = (prefs.travelers || []).some((t) => (t.diet || []).map((x) => x.toLowerCase()).includes('vegan'));
   const diet = vegan && it.type === 'food' ? it.vegan || 'unknown' : null;
-  return { love, avoid, diet, excluded: avoid.length > 0 || diet === 'none' };
+  // With a dog, "no dogs" isn't a hard exclude (one of us can walk the dog), just flagged.
+  const dog = (prefs.pets || []).length && !TRANSPORT.has(it.type) ? it.dog || 'unknown' : null;
+  return { love, avoid, diet, dog, excluded: avoid.length > 0 || diet === 'none' };
 }
 
 // ---------- the day planner ----------
@@ -394,6 +397,7 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
       const pm = prefMatch(x.it, prefs);
       if (pm.avoid.length) warnings.push(`“${x.it.title}” matches something you avoid (${pm.avoid.join(', ')}).`);
       if (pm.diet === 'none') warnings.push(`“${x.it.title}” has no vegan options.`);
+      if (pm.dog === 'no') warnings.push(`🐶 No dogs at “${x.it.title}”: one of you walks the dog, or arrange a sitter.`);
     });
     for (const l of legs) {
       if (l.tight) warnings.push(`Tight: about ${Math.round(l.est.min)} min to get to ${l.to.name || 'the next stop'}, but only ${Math.max(0, Math.round(l.gap))} min free.`);

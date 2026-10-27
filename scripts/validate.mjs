@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Checks the trip data for mistakes. Run from the repo root: node scripts/validate.mjs
 // Exits 1 on errors (CI blocks the deploy); warnings are printed but don't fail.
-import { createPlanner, tripDays, prefMatch, TRANSPORT, ACTIVITY_TYPES, STATUSES, SCHEDULED, VEGAN } from '../planner.js';
+import { createPlanner, tripDays, prefMatch, TRANSPORT, ACTIVITY_TYPES, STATUSES, SCHEDULED, VEGAN, DOG } from '../planner.js';
 import { loadAll } from './lib.mjs';
 
 const errors = [], warnings = [];
@@ -34,6 +34,7 @@ for (const id of ['transit', 'unplanned']) if (!cities[id]) errors.push(`cities.
 for (const r of routes) {
   if (!cities[r.from] || !cities[r.to]) errors.push(`routes.json ${r.from}>${r.to}: unknown city`);
   if (!(r.minutes > 0)) errors.push(`routes.json ${r.from}>${r.to}: minutes must be > 0`);
+  if ((prefs.transport?.avoid || []).includes(r.mode)) warnings.push(`routes.json ${r.from}>${r.to}: mode "${r.mode}" is in preferences.transport.avoid`);
 }
 
 // route.json
@@ -77,6 +78,8 @@ for (const it of [...activities, ...transport.map((t) => ({ ...t, _file: 'data/t
   if (it.price != null && (typeof it.price !== 'object' || (it.price.amount != null && typeof it.price.amount !== 'number') || !it.price.currency)) errors.push(`${where}: price must be {"amount": number|null, "currency": "PLN"}`);
   if (it.price?.currency && trip.settings.fxToUSD[it.price.currency] == null) warnings.push(`${where}: no fxToUSD rate for ${it.price.currency}`);
   if (it.hours && (!HM.test(it.hours.open || '') || !HM.test(it.hours.close || ''))) errors.push(`${where}: hours must be {"open":"HH:MM","close":"HH:MM"}`);
+  if (it.dog != null && !DOG.includes(it.dog)) errors.push(`${where}: dog must be one of ${DOG.join(', ')}`);
+  if ((prefs.pets || []).length && !transportItem && !it.dog) warnings.push(`${where}: no "dog" rating`);
   if (it.vegan != null && !VEGAN.includes(it.vegan)) errors.push(`${where}: vegan must be one of ${VEGAN.join(', ')}`);
   if (it.from?.time || it.to?.time) {
     for (const end of ['from', 'to']) {
@@ -97,7 +100,7 @@ for (const it of [...activities, ...transport.map((t) => ({ ...t, _file: 'data/t
 
 if (!errors.length) {
   const P = createPlanner({ trip, cities, routes, route, prefs, activities, transport });
-  for (const w of P.itin.warnings) errors.push(`route: ${w}`);
+  for (const w of P.itin.warnings) warnings.push(`route: ${w}`);
   for (const it of P.items) {
     const t = P.timing(it);
     if (t && t.e <= t.s) errors.push(`${it.id}: ends before it starts (check time zones)`);

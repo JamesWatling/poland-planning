@@ -10,7 +10,8 @@ const ICON = {
 };
 const MODE = { walk: ['🚶', 'walk', 'walking'], transit: ['🚋', 'transit', 'transit'], uber: ['🚕', 'Uber/Bolt', 'driving'] };
 const VEGAN_LABEL = { great: '🌱 great vegan', options: '🌱 vegan options', limited: '🌱 limited vegan', none: '🚫 no vegan', unknown: '🌱 vegan?' };
-const LS = { overrides: 'pp.overrides', added: 'pp.added', route: 'pp.route', prefs: 'pp.prefs', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
+const LS = { overrides: 'pp.overrides', added: 'pp.added', route: 'pp.route', prefs: 'pp.prefs', pending: 'pp.pending', token: 'pp.ghToken', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
+const DOG_LABEL = { yes: '🐶 dogs welcome', carrier: '🐶 in a carrier', no: '🐶 no dogs' };
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -28,10 +29,12 @@ const S = {
   added: store.get(LS.added, []),
   routeLocal: store.get(LS.route, null), // { data, updatedBy, updatedAt } when changed on this device
   prefsLocal: store.get(LS.prefs, null),
+  pending: store.get(LS.pending, []), // batches saved to GitHub, shown until the site has them: [{ file, sentAt, data }]
+  eff: { r: null, p: null },
   ui: { view: 'trip', date: null, ideaCity: 'all', ideaStatus: 'undecided', ...store.get(LS.ui, {}) },
 };
-const route = () => S.routeLocal?.data || S.baseRoute;
-const prefs = () => S.prefsLocal?.data || S.basePrefs;
+const route = () => S.eff.r?.data || S.baseRoute;
+const prefs = () => S.eff.p?.data || S.basePrefs;
 const routeCities = () => Object.entries(S.cities).filter(([, c]) => c.kind === 'city');
 
 // ---------- formatting ----------
@@ -58,6 +61,7 @@ function prefBadges(it, showLove = true) {
     showLove && m.love.length ? `<span class="chip love" title="Matches your interests">⭐ ${esc(m.love.join(', '))}</span>` : '',
     m.avoid.length ? `<span class="chip avoid">🚫 ${esc(m.avoid.join(', '))}</span>` : '',
     m.diet ? `<span class="chip ${m.diet === 'none' ? 'avoid' : m.diet === 'great' || m.diet === 'options' ? 'vegan' : ''}">${VEGAN_LABEL[m.diet]}</span>` : '',
+    DOG_LABEL[m.dog] ? `<span class="chip ${m.dog === 'no' ? 'avoid' : 'vegan'}">${DOG_LABEL[m.dog]}</span>` : '',
   ].join('');
 }
 
@@ -77,16 +81,33 @@ async function load() {
   Object.assign(S, { trip, cities, routes, baseRoute, basePrefs, baseTransport: transport });
   const files = Object.values(cities).map((c) => c.file).filter(Boolean);
   S.baseActivities = (await Promise.all(files.map((f) => getJSON(f, [])))).flat();
+  S.loadedAt = Date.now();
+  await checkSync(await getJSON('data/sync.json', { applied: [], failed: [] }));
   rebuild();
   const days = tripDays(S.trip);
   if (!days.includes(S.ui.date)) S.ui.date = days.includes(todayISO()) ? todayISO() : days[0];
 }
 
+/** Changes are layered: repo data ← batches already saved but not live yet ← this device's unsaved changes. */
+function layers() {
+  const overrides = {}, added = new Map();
+  let r = null, p = null;
+  for (const b of [...S.pending.map((x) => x.data), { overrides: S.overrides, added: S.added, route: S.routeLocal, preferences: S.prefsLocal }]) {
+    for (const [k, v] of Object.entries(b.overrides || {})) overrides[k] = { ...(overrides[k] || {}), ...v };
+    for (const a of b.added || []) added.set(a.id, { ...(added.get(a.id) || {}), ...a });
+    if (b.route) r = b.route;
+    if (b.preferences) p = b.preferences;
+  }
+  return { overrides, added: [...added.values()], r, p };
+}
+
 function rebuild() {
-  const apply = (it) => ({ ...it, ...(S.overrides[it.id] || {}) });
-  const baseIds = new Set(S.baseActivities.map((i) => i.id));
-  const activities = [...S.baseActivities, ...S.added.filter((a) => !baseIds.has(a.id) && !TRANSPORT.has(a.type))].map(apply);
-  const transport = [...S.baseTransport, ...S.added.filter((a) => TRANSPORT.has(a.type))].map(apply);
+  S.eff = layers();
+  const apply = (it) => ({ ...it, ...(S.eff.overrides[it.id] || {}) });
+  const baseIds = new Set([...S.baseActivities, ...S.baseTransport].map((i) => i.id));
+  const extra = S.eff.added.filter((a) => !baseIds.has(a.id));
+  const activities = [...S.baseActivities, ...extra.filter((a) => !TRANSPORT.has(a.type))].map(apply);
+  const transport = [...S.baseTransport, ...extra.filter((a) => TRANSPORT.has(a.type))].map(apply);
   S.P = createPlanner({ trip: S.trip, cities: S.cities, routes: S.routes, route: route(), prefs: prefs(), activities, transport });
   S.items = S.P.items;
   S.byId = Object.fromEntries(S.items.map((i) => [i.id, i]));
@@ -99,6 +120,7 @@ function persist() {
   store.set(LS.added, S.added);
   store.set(LS.route, S.routeLocal);
   store.set(LS.prefs, S.prefsLocal);
+  store.set(LS.pending, S.pending);
   rebuild();
 }
 const stamp = () => ({ updatedBy: whoAmI(), updatedAt: new Date().toISOString() });
@@ -113,6 +135,121 @@ function whoAmI() {
 }
 
 const snapshot = () => JSON.stringify({ o: S.overrides, a: S.added, r: S.routeLocal, p: S.prefsLocal });
+
+// ---------- saving to the shared plan (GitHub) ----------
+// The phone commits its changes as one file in data/inbox/ via the GitHub API. The deploy workflow merges it into the
+// data files, validates, and redeploys; data/sync.json then lists the file as applied (or failed).
+
+const ghToken = () => store.get(LS.token, '');
+const b64std = (s) => { let bin = ''; new TextEncoder().encode(s).forEach((b) => (bin += String.fromCharCode(b))); return btoa(bin); };
+async function gh(path, opts = {}) {
+  const { owner, repo } = S.trip.github;
+  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`, {
+    ...opts, headers: { Authorization: `Bearer ${ghToken()}`, Accept: 'application/vnd.github+json', ...(opts.headers || {}) },
+  });
+  if (!r.ok) {
+    const msg = (await r.json().catch(() => ({}))).message || r.statusText;
+    throw Object.assign(new Error(r.status === 401 ? 'GitHub token is invalid or expired.' : r.status === 403 || r.status === 404 ? `GitHub refused access (${msg}). Check the token has Contents: read & write on ${owner}/${repo}.` : `GitHub error ${r.status}: ${msg}`), { status: r.status });
+  }
+  return r.json();
+}
+
+let saving = false;
+async function saveToShared() {
+  if (!changeCount() || saving) return;
+  if (!ghToken()) return openGitHubSetup(true);
+  saving = true; render();
+  const data = exportData();
+  const who = (data.exportedBy || 'someone').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const file = `${new Date().toISOString().replace(/[:.]/g, '-')}-${who}.json`;
+  const body = JSON.stringify({ message: `Planner: ${changeCount()} change(s) from ${data.exportedBy}`, content: b64std(JSON.stringify(data, null, 2)), branch: S.trip.github.branch });
+  try {
+    try { await gh(`/contents/data/inbox/${file}`, { method: 'PUT', body }); }
+    catch (e) { if (e.status === 409) await gh(`/contents/data/inbox/${file}`, { method: 'PUT', body }); else throw e; } // branch moved: retry once
+    S.pending.push({ file, sentAt: Date.now(), data });
+    Object.assign(S, { overrides: {}, added: [], routeLocal: null, prefsLocal: null });
+    persist();
+    toast('☁️ Saved. The shared plan updates in about 1–2 minutes.');
+    pollSync();
+  } catch (e) {
+    alert(`Couldn't save: ${e.message}\n\nYour changes are still on this phone.`);
+  } finally { saving = false; render(); }
+}
+
+/** Drop pending batches the site now has; put failed ones back as local changes. Returns true if anything changed. */
+async function checkSync(sync) {
+  let changed = false;
+  for (const b of [...S.pending]) {
+    const failed = (sync.failed || []).find((f) => f.file === b.file);
+    if ((sync.applied || []).includes(b.file)) { S.pending = S.pending.filter((x) => x !== b); changed = true; }
+    else if (failed) {
+      S.pending = S.pending.filter((x) => x !== b);
+      mergeChanges(b.data, false);
+      changed = true;
+      setTimeout(() => alert(`A save was rejected because it would break the plan:\n\n${failed.errors.join('\n')}\n\nYour changes are back on this phone. Fix them, or ask Claude for help.`), 300);
+    }
+  }
+  if (changed) persist();
+  return changed;
+}
+
+let pollTimer;
+function pollSync(tries = 0) {
+  clearTimeout(pollTimer);
+  if (!S.pending.length) return;
+  pollTimer = setTimeout(async () => {
+    try {
+      const sync = await getJSON('data/sync.json', {});
+      if (await checkSync(sync)) { await load(); if ($('#sheet').hidden) render(); if (!S.pending.length) toast('✓ Shared plan updated'); }
+    } catch { /* offline: try again */ }
+    if (S.pending.length && tries < 40) pollSync(tries + 1);
+  }, 15000);
+}
+
+function openGitHubSetup(thenSave = false) {
+  const { owner, repo } = S.trip.github;
+  openSheet(`${sheetHead('☁️ Connect this phone')}
+    <p class="small" style="margin-top:0">To save picks straight from the browser, this phone needs a GitHub token that can only edit the <b>${esc(owner)}/${esc(repo)}</b> files. You only do this once per phone.</p>
+    <ol class="small steps">
+      <li>On GitHub (as ${esc(owner)}), open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">New fine-grained token</a>.</li>
+      <li>Name it e.g. “Poland planner – ${esc(store.get(LS.name, 'phone'))}”, and set the expiration to after the trip (e.g. Jan 2027).</li>
+      <li><b>Repository access</b> → Only select repositories → <b>${esc(repo)}</b>.</li>
+      <li><b>Permissions</b> → Repository → <b>Contents: Read and write</b>. Nothing else.</li>
+      <li>Generate, copy, and paste it here:</li>
+    </ol>
+    <label class="field"><span>Token</span><input name="token" type="password" autocomplete="off" placeholder="github_pat_…" value="${esc(ghToken())}"></label>
+    <div class="fit" id="ghStatus" hidden></div>
+    <div class="grid2"><button class="btn primary" data-gh="save">Connect${thenSave ? ' & save' : ''}</button>${ghToken() ? '<button class="btn" data-gh="remove">Disconnect</button>' : '<span></span>'}</div>
+    <p class="muted tiny">The token stays in this browser only. Anyone with it can edit this repo's files, so don't share screenshots of it. You can revoke it on GitHub any time.</p>`, (sheet) => {
+    sheet.addEventListener('click', async (e) => {
+      const act = e.target.closest('[data-gh]')?.dataset.gh;
+      if (act === 'remove') { store.set(LS.token, null); closeSheet(); render(); return toast('Disconnected'); }
+      if (act !== 'save') return;
+      const status = $('#ghStatus', sheet);
+      const prev = ghToken();
+      store.set(LS.token, $('[name=token]', sheet).value.trim());
+      status.hidden = false; status.className = 'fit'; status.textContent = 'Checking…';
+      try {
+        const info = await gh('');
+        if (!info.permissions?.push) throw new Error('This token can read the repo but not write to it. Give it Contents: Read and write.');
+        closeSheet();
+        toast('✓ Connected to GitHub');
+        if (thenSave) saveToShared(); else render();
+      } catch (err) {
+        store.set(LS.token, prev || null);
+        status.className = 'fit bad'; status.textContent = err.message;
+      }
+    });
+  });
+}
+
+function saveBar() {
+  const n = changeCount();
+  if (saving) return '<div class="savebar"><span>☁️ Saving…</span></div>';
+  if (n) return `<div class="savebar"><span><b>${n}</b> unsaved change${n === 1 ? '' : 's'} on this phone</span><button class="btn small primary" data-save>Save to shared plan</button></div>`;
+  if (S.pending.length) return '<div class="savebar muted"><span>⏳ Saved. Updating the shared plan (1–2 min)…</span></div>';
+  return '';
+}
 const restorer = (snap) => () => { const { o, a, r, p } = JSON.parse(snap); Object.assign(S, { overrides: o, added: a, routeLocal: r, prefsLocal: p }); persist(); render(); };
 
 /** Apply a patch to an item; returns an undo function. */
@@ -174,6 +311,7 @@ function render() {
   store.set(LS.ui, S.ui);
   const main = $('#main');
   main.innerHTML = { trip: viewTrip, day: viewDay, swipe: viewSwipe, ideas: viewIdeas }[S.ui.view]();
+  $('#savebar').innerHTML = saveBar();
   hydrateImages(main);
   if (S.ui.view === 'swipe') bindSwipe();
 }
@@ -600,7 +738,7 @@ function openEdit(id, defaults = {}) {
     <div class="transport-only">
       <div class="grid2">
         <label class="field"><span>From</span><input name="fromName" value="${esc(it.from?.name)}" placeholder="e.g. Kraków Główny"></label>
-        <label class="field"><span>To</span><input name="toName" value="${esc(it.to?.name)}" placeholder="e.g. Wrocław Główny"></label>
+        <label class="field"><span>To</span><input name="toName" value="${esc(it.to?.name)}" placeholder="e.g. Zakopane"></label>
       </div>
       <p class="muted tiny">Booked flights or trains between cities: ask Claude to add them to data/transport.json so they replace the route's placeholders.</p>
     </div>
@@ -611,6 +749,7 @@ function openEdit(id, defaults = {}) {
       <label class="field"><span>Currency</span><select name="currency">${['PLN', 'USD', 'EUR'].map((c) => `<option ${c === (it.price?.currency || 'PLN') ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
     </div>
     <label class="field food-only"><span>Vegan friendliness</span><select name="vegan"><option value="">Not sure</option>${['great', 'options', 'limited', 'none'].map((v) => `<option value="${v}" ${it.vegan === v ? 'selected' : ''}>${VEGAN_LABEL[v]}</option>`).join('')}</select></label>
+    <label class="field activity-only"><span>Dogs allowed?</span><select name="dog"><option value="">Not sure</option>${['yes', 'carrier', 'no'].map((v) => `<option value="${v}" ${it.dog === v ? 'selected' : ''}>${DOG_LABEL[v]}</option>`).join('')}</select></label>
     <label class="field"><span>Short description</span><textarea name="description">${esc(it.description)}</textarea></label>
     <label class="field"><span>Link (tickets, website)</span><input name="url" type="url" value="${esc(it.url)}" placeholder="https://"></label>
     <label class="field"><span>Image URL (optional)</span><input name="image" type="url" value="${esc(it.image)}" placeholder="https://…jpg"></label>
@@ -649,6 +788,7 @@ function openEdit(id, defaults = {}) {
         description: v('description'), url: v('url') || null, image: v('image') || null, notes: v('notes') || null,
         price: v('price') === '' ? null : { amount: +v('price'), currency: v('currency'), per: 'person' },
         vegan: v('type') === 'food' ? v('vegan') || null : null,
+        dog: transport ? null : v('dog') || 'unknown',
       };
       if (transport) {
         if (!it.from?.time) { patch.from = { ...(it.from || {}), name: v('fromName') }; patch.to = { ...(it.to || {}), name: v('toName') }; }
@@ -804,7 +944,7 @@ function openCities() {
 function openPrefs() {
   const draft = clone(prefs());
   draft.interests ||= []; draft.avoid ||= []; draft.travelers ||= []; draft.flexible ||= [];
-  draft.lodging ||= { wants: [] }; draft.lodging.wants ||= [];
+  draft.lodging ||= { wants: [] }; draft.lodging.wants ||= []; draft.pets ||= [];
   const chips = (key, list) => `<div class="row wrap">${list.map((x, i) => `<span class="chip wrap">${esc(x)} <button class="x" data-del="${key}" data-i="${i}" aria-label="Remove">✕</button></span>`).join('')}</div>
     <div class="row" style="margin-top:6px"><input data-new="${key}" placeholder="Add…"><button class="btn small" data-addto="${key}">Add</button></div>`;
   const get = (key) => key.split('.').reduce((o, k) => o[k], draft);
@@ -817,6 +957,11 @@ function openPrefs() {
       ${draft.travelers.map((t, i) => `<div class="stop-row"><div class="grid2"><label class="field"><span>Name</span><input data-tname="${i}" value="${esc(t.name)}"></label>
         <label class="field"><span>Diet</span><select data-tdiet="${i}">${['', 'vegan', 'vegetarian', 'gluten-free', 'pescatarian'].map((d) => `<option value="${d}" ${(t.diet || [])[0] === d ? 'selected' : ''}>${d || 'Eats anything'}</option>`).join('')}</select></label></div>
         <label class="field" style="margin:0"><span>Notes</span><input data-tnotes="${i}" value="${esc(t.notes)}"></label></div>`).join('')}
+      <div class="section-title">🐶 Pets</div>
+      ${draft.pets.map((pt, i) => `<div class="stop-row"><div class="grid2"><label class="field"><span>Name</span><input data-pname="${i}" value="${esc(pt.name)}"></label>
+        <label class="field"><span>Size</span><select data-psize="${i}">${['small', 'medium', 'large'].map((z) => `<option ${pt.size === z ? 'selected' : ''}>${z}</option>`).join('')}</select></label></div>
+        <button class="btn small" data-delpet="${i}">Remove</button></div>`).join('')}
+      <button class="btn small" data-addpet>＋ Add a pet</button>
       <div class="section-title">🤏 Flexible preferences (nice to have)</div>${chips('flexible', draft.flexible)}
       <div class="section-title">🏠 Lodging wishes</div>${chips('lodging.wants', draft.lodging.wants)}
       <label class="field" style="margin-top:8px"><span>Budget per night (USD)</span><input type="number" data-budget value="${draft.lodging.budgetPerNight?.amount ?? ''}"></label>
@@ -827,6 +972,8 @@ function openPrefs() {
     sheet.addEventListener('click', (e) => {
       const t = e.target;
       if (t.dataset.del) { get(t.dataset.del).splice(+t.dataset.i, 1); draw(sheet); }
+      if (t.dataset.delpet) { draft.pets.splice(+t.dataset.delpet, 1); draw(sheet); }
+      if ('addpet' in t.dataset) { draft.pets.push({ name: '', type: 'dog', size: 'small' }); draw(sheet); }
       if (t.dataset.addto) { const inp = $(`[data-new="${t.dataset.addto}"]`, sheet); if (inp.value.trim()) get(t.dataset.addto).push(inp.value.trim()); draw(sheet); }
       if ('savePrefs' in t.dataset) { const undo = savePrefs(clone(draft)); closeSheet(); toast('Preferences saved', undo); }
     });
@@ -836,6 +983,8 @@ function openPrefs() {
       if (d.tname) draft.travelers[+d.tname].name = t.value;
       if (d.tdiet) draft.travelers[+d.tdiet].diet = t.value ? [t.value] : [];
       if (d.tnotes) draft.travelers[+d.tnotes].notes = t.value;
+      if (d.pname) draft.pets[+d.pname].name = t.value;
+      if (d.psize) draft.pets[+d.psize].size = t.value;
       if ('budget' in d) draft.lodging.budgetPerNight = t.value ? { amount: +t.value, currency: 'USD' } : null;
     });
   });
@@ -850,7 +999,7 @@ const exportData = () => ({
   overrides: S.overrides, added: S.added, route: S.routeLocal, preferences: S.prefsLocal,
 });
 
-function mergeChanges(data) {
+function mergeChanges(data, save = true) {
   if (data?.type !== 'poland-planner-changes') throw new Error('That does not look like a planner export.');
   let n = 0;
   const newer = (a, b) => !b || (a.updatedAt || '') > (b.updatedAt || '');
@@ -861,7 +1010,7 @@ function mergeChanges(data) {
   }
   if (data.route && newer(data.route, S.routeLocal)) { S.routeLocal = data.route; n++; }
   if (data.preferences && newer(data.preferences, S.prefsLocal)) { S.prefsLocal = data.preferences; n++; }
-  persist();
+  if (save) persist();
   return n;
 }
 
@@ -878,8 +1027,10 @@ function openMenu() {
   const name = store.get(LS.name, '');
   openSheet(`${sheetHead('Menu')}
     <p class="small">You are <b>${esc(name || 'not set')}</b>. This device has <b>${n}</b> change${n === 1 ? '' : 's'} that aren’t saved to the shared plan yet${S.routeLocal ? ' (including the route)' : ''}.</p>
-    <p class="muted small">Picks are stored on this phone. To share them, send a link to your partner (it merges with their picks), or download the file and ask Claude to save it to the repo (see AGENTS.md).</p>
+    <p class="muted small">Tap <b>Save to shared plan</b> to send your picks to GitHub; the site updates for both of you in 1–2 minutes. No GitHub token on this phone? Share a link with your partner, or download the changes for Claude.</p>
     <div class="menu-list">
+      <button data-save>☁️ Save to shared plan${n ? ` (${n})` : ''}</button>
+      <button data-menu="github">🔑 GitHub connection ${ghToken() ? '✓' : '(not set up)'}</button>
       <button data-route>🗺️ Edit route</button>
       <button data-prefs>💚 Our preferences</button>
       <button data-menu="share">🔗 Share my picks as a link</button>
@@ -907,6 +1058,7 @@ function openMenu() {
       if (act === 'download') download(`changes-${(name || 'someone').toLowerCase()}-${todayISO()}.json`, json);
       if (act === 'copy') { await navigator.clipboard.writeText(`Please apply these Poland planner changes (save as data/inbox/changes.json and run node scripts/apply-changes.mjs):\n\n${json}`); toast('Copied'); }
       if (act === 'import') file.click();
+      if (act === 'github') openGitHubSetup();
       if (act === 'name') { store.set(LS.name, ''); whoAmI(); closeSheet(); openMenu(); }
       if (act === 'images') { for (const k of Object.keys(imgCache)) delete imgCache[k]; store.set(LS.images, {}); closeSheet(); render(); }
       if (act === 'reset' && confirm('Clear all picks, added ideas, route and preference changes on this device? (Export first if you want to keep them.)')) {
@@ -931,12 +1083,13 @@ function toast(msg, undo) {
 // ---------- events ----------
 
 document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-view],[data-go],[data-go-day],[data-day-step],[data-add],[data-detail],[data-edit],[data-time],[data-unschedule],[data-quick-yes],[data-quick-no],[data-quick-maybe],[data-swipe],[data-filter-city],[data-filter-status],[data-close],[data-route],[data-cities],[data-prefs]');
+  const t = e.target.closest('[data-view],[data-go],[data-go-day],[data-day-step],[data-add],[data-detail],[data-edit],[data-time],[data-unschedule],[data-quick-yes],[data-quick-no],[data-quick-maybe],[data-swipe],[data-filter-city],[data-filter-status],[data-close],[data-route],[data-cities],[data-prefs],[data-save]');
   if (!t) { if (e.target.id === 'sheet') closeSheet(); return; }
   const d = t.dataset;
   const inSheet = !!t.closest('#sheet');
   const closeIf = () => { if (inSheet) closeSheet(); };
   if ('close' in d) return closeSheet();
+  if ('save' in d) { closeIf(); return saveToShared(); }
   if ('route' in d && !d.r) return openRoute();
   if ('cities' in d) return openCities();
   if ('prefs' in d) return openPrefs();
@@ -974,6 +1127,11 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowUp') openTime(card.dataset.id, S.ui.date);
 });
 $('#menuBtn').addEventListener('click', openMenu);
+// Coming back to the tab: pick up what the other person saved.
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || Date.now() - (S.loadedAt || 0) < 60000 || !$('#sheet').hidden) return;
+  try { await load(); render(); } catch { /* offline */ }
+});
 
 // ---------- boot ----------
 
@@ -990,6 +1148,7 @@ $('#menuBtn').addEventListener('click', openMenu);
       history.replaceState(null, '', location.pathname);
     }
     render();
+    pollSync();
   } catch (err) {
     console.error(err);
     $('#main').innerHTML = `<div class="card"><h2>Could not load the trip</h2><p class="muted">${esc(err.message)}</p><p class="small">If you opened index.html directly, run a local server instead: <code>python3 -m http.server</code></p></div>`;

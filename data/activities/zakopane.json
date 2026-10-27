@@ -1,1 +1,219 @@
-[]
+[
+  {
+    "id": "zak-krupowki",
+    "title": "Krupówki Street stroll",
+    "type": "sight",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "Zakopane's main street: wooden highlander houses, cafés, and the market at the bottom selling wool and crafts.",
+    "address": "Krupówki, 34-500 Zakopane",
+    "lat": 49.2969,
+    "lng": 19.9507,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "walk"
+    ],
+    "wiki": "Krupówki",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-gubalowka",
+    "title": "Gubałówka funicular & ridge walk",
+    "type": "nature",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "A funicular up to the Gubałówka ridge for panoramic Tatra views, then an easy walk along the top. Best on a clear day.",
+    "address": "Na Gubałówkę 1, 34-500 Zakopane",
+    "lat": 49.299,
+    "lng": 19.947,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "12:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "sunset"
+    ],
+    "wiki": "Gubałówka",
+    "dog": "unknown",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-kasprowy",
+    "title": "Kasprowy Wierch cable car",
+    "type": "nature",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "A cable car to 1,987 m on the Slovak border, often snowy by December. Weather-dependent, so go early and check that it's running.",
+    "address": "Kuźnice 14, 34-500 Zakopane",
+    "lat": 49.27,
+    "lng": 19.98,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "09:30",
+    "price": {
+      "amount": 140,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "mountains"
+    ],
+    "notes": "Tatra National Park restricts dogs; check whether a small dog in a carrier is allowed on the cable car.",
+    "wiki": "Kasprowy_Wierch",
+    "dog": "unknown",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-termy",
+    "title": "Termy Zakopiańskie thermal pools",
+    "type": "rest",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "Warm outdoor thermal pools with mountain views: perfect after a cold day.",
+    "address": "Jagiellońska 31, 34-500 Zakopane",
+    "lat": 49.295,
+    "lng": 19.96,
+    "duration": 150,
+    "maxDuration": 210,
+    "suggestedStart": "15:30",
+    "price": {
+      "amount": 90,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "relax"
+    ],
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-old-church",
+    "title": "Old Church & Pęksowy Brzyzek cemetery",
+    "type": "sight",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "A tiny 19th-century wooden church and an atmospheric cemetery of carved wooden grave markers.",
+    "address": "Kościeliska 4, 34-500 Zakopane",
+    "lat": 49.2955,
+    "lng": 19.944,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "13:30",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "history",
+      "architecture"
+    ],
+    "wiki": "Pęksowy_Brzyzek_National_Cemetery",
+    "dog": "unknown",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-koliba",
+    "title": "Museum of Zakopane Style (Villa Koliba)",
+    "type": "museum",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "The first villa in the \"Zakopane style\" of architecture, with folk-inspired interiors.",
+    "address": "Kościeliska 18, 34-500 Zakopane",
+    "lat": 49.295,
+    "lng": 19.942,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "16:00"
+    },
+    "hoursApprox": true,
+    "wiki": "Villa_Koliba",
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-koscieliska",
+    "title": "Kościeliska Valley winter walk",
+    "type": "nature",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "A gentle valley walk into the Tatras past streams and cliffs, possibly in snow.",
+    "address": "Kiry, 34-511 Kościelisko",
+    "lat": 49.272,
+    "lng": 19.87,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 10,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "walk",
+      "mountains"
+    ],
+    "notes": "Dogs are banned on most Tatra National Park trails; look at dog-friendly valleys outside the park instead.",
+    "wiki": "Kościeliska_Valley",
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "zak-karczma",
+    "title": "Highlander dinner with live folk music",
+    "type": "food",
+    "city": "zakopane",
+    "status": "idea",
+    "description": "A cosy karczma (wooden inn) with a fireplace and a góral band. Ask for the vegan dishes; options are limited in traditional places.",
+    "address": "Krupówki, 34-500 Zakopane",
+    "lat": 49.2965,
+    "lng": 19.9505,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 120,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "vegan": "limited",
+    "tags": [
+      "music",
+      "evening"
+    ],
+    "wiki": "Gorals",
+    "dog": "unknown",
+    "addedBy": "claude"
+  }
+]

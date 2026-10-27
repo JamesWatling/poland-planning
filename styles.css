@@ -247,3 +247,10 @@ main { max-width: 760px; margin: 0 auto; padding: 14px 16px calc(90px + env(safe
 .idea.excluded { opacity: .55; }
 .sheet { overflow-x: hidden; }
 .chip.wrap { white-space: normal; text-align: left; }
+
+/* save bar */
+#savebar .savebar { position: fixed; left: 0; right: 0; bottom: calc(58px + env(safe-area-inset-bottom)); z-index: 19; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 16px; background: var(--accent-soft); border-top: 1px solid var(--line); font-size: 14px; }
+#savebar .savebar.muted { background: var(--card); color: var(--muted); }
+body:has(#savebar .savebar) main { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+body:has(#savebar .savebar) .toast { bottom: calc(130px + env(safe-area-inset-bottom)); }
+.steps { padding-left: 20px; } .steps li { margin-bottom: 6px; }

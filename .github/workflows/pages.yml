@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Apply saved changes and deploy
 
 on:
   push:
@@ -6,13 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # to commit changes saved from the website
   pages: write
   id-token: write
 
+# One run at a time, never cancelled midway, so two people saving at once can't clobber each other.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -22,9 +23,21 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # latest main, not the triggering commit, so earlier runs' applied changes are included
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Apply changes saved from the website (data/inbox)
+        run: |
+          if ls data/inbox/*.json >/dev/null 2>&1; then
+            node scripts/apply-changes.mjs
+            git config user.name "poland-planner-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A data
+            git commit -m "Apply changes saved from the website" || exit 0
+            for i in 1 2 3 4; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((i * 3)); done
+          fi
       - name: Validate trip data
         run: node scripts/validate.mjs
       - uses: actions/configure-pages@v5

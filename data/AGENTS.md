@@ -5,20 +5,21 @@ After any change, run `node scripts/validate.mjs` from the repo root.
 
 ## `cities.json`: the city catalog
 
-Keyed by city id (lowercase ASCII: `krakow`, `gdansk`, …). `kind` is `"city"` for places we can visit. The special entries
+Keyed by city id (lowercase ASCII: `warsaw`, `gdansk`, `krakow`, `zakopane`, `prague`). Prague is in the Czech Republic:
+`tz` `Europe/Prague`, `currency` `CZK` (needs an `fxToUSD` rate in `trip.json`). `kind` is `"city"` for places we can visit. The special entries
 `los-angeles` (`home`), `transit` and `unplanned` are used internally; leave them alone.
 
 ```json
-"torun": {
-  "kind": "city", "name": "Toruń", "short": "TOR", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#a16207",
-  "lat": 53.0138, "lng": 18.5984,
-  "file": "data/activities/torun.json",               // its activity database (a JSON array, may be [])
-  "nights": { "min": 1, "ideal": 1, "max": 2 },        // used by Regenerate
+"zakopane": {
+  "kind": "city", "name": "Zakopane", "short": "ZAK", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#0d9488",
+  "lat": 49.2992, "lng": 19.9496,
+  "file": "data/activities/zakopane.json",               // its activity database (a JSON array, may be [])
+  "nights": { "min": 2, "ideal": 3, "max": 4 },        // used by Regenerate
   "description": "One or two sentences on why go.",
   "airport": { "code": "BZG", "name": "…", "address": "…", "lat": 0, "lng": 0 },   // optional
-  "station": { "name": "Toruń Główny", "address": "…", "lat": 53.0003, "lng": 18.6106 },
+  "station": { "name": "Zakopane railway station", "address": "…", "lat": 49.3, "lng": 19.958 },
   "stayAreas": [
-    { "id": "old-town", "name": "Old Town", "lat": 53.0103, "lng": 18.605, "description": "Why stay here, plus trade-offs." }
+    { "id": "centre", "name": "Centre (near Krupówki)", "lat": 49.296, "lng": 19.95, "description": "Why stay here, plus trade-offs." }
   ]
 }
 ```
@@ -31,11 +32,12 @@ Symmetric (A→B also covers B→A). The fastest entry for a pair wins. Pairs th
 (shown with `*` on the site), so add real ones.
 
 ```json
-{ "from": "gdansk", "to": "torun", "mode": "train", "minutes": 150, "price": { "amount": 60, "currency": "PLN" },
-  "notes": "Direct IC trains every ~2h.", "approx": true }
+{ "from": "krakow", "to": "zakopane", "mode": "train", "minutes": 150, "price": { "amount": 35, "currency": "PLN" },
+  "notes": "Trains about 2.5h. Small dogs ride in a carrier.", "approx": true }
 ```
 
-`mode`: `train` | `bus` | `flight`. Use door-to-door-ish times for flights (add about 2h).
+`mode`: `train` | `bus`. **No flights**: we travel with a small dog and prefer trains (`preferences.json` → `transport.avoid`).
+Put dog rules in `notes` when they differ (e.g. buses).
 
 ## `route.json`: the route
 
@@ -70,7 +72,9 @@ Symmetric (A→B also covers B→A). The fastest entry for a pair wins. Pairs th
   "avoid": ["bicycle"],                                       // keywords: matching ideas are hidden and never researched
   "travelers": [ { "name": "James", "diet": [] }, { "name": "…", "diet": ["vegan"], "notes": "" } ],
   "flexible": ["Food stops should have good vegan options", "Relaxed mornings"],  // soft preferences, in plain words
-  "lodging": { "wants": ["walkable to the old town", "kitchen"], "budgetPerNight": { "amount": 150, "currency": "USD" } }
+  "pets": [ { "name": "…", "type": "dog", "size": "small" } ],               // turns on dog ratings and warnings
+  "transport": { "prefer": ["train"], "avoid": ["flight"] },
+  "lodging": { "wants": ["dog-friendly (small dog)", "kitchen"], "budgetPerNight": { "amount": 150, "currency": "USD" } }
 }
 ```
 
@@ -80,7 +84,7 @@ Keyword matching is a case-insensitive substring match on title, description, ty
 
 ```json
 {
-  "id": "krk-ice-skating",            // unique, lowercase, city prefix (waw-, krk-, wro-, gdn-, poz-, tor-, zak-, ldz-, lub-)
+  "id": "krk-ice-skating",            // unique, lowercase, city prefix (waw-, gdn-, krk-, zak-, prg-)
   "title": "Ice skating at the Old Town rink",
   "type": "event",                    // sight | museum | food | tour | daytrip | nature | event | nightlife | shopping | rest | other
   "city": "krakow",
@@ -95,6 +99,7 @@ Keyword matching is a case-insensitive substring match on title, description, ty
   "hours": { "open": "10:00", "close": "21:00" }, "hoursApprox": true,   // optional; used for warnings and auto-scheduling
   "price": { "amount": 25, "currency": "PLN", "per": "person", "approx": true },  // 0 = free, null = unknown
   "vegan": "great",                   // food only: great | options | limited | none | unknown
+  "dog": "yes",                       // yes | carrier | no | unknown (we travel with a small dog)
   "wiki": "Kraków_Old_Town",          // optional: English Wikipedia title for the photo
   "image": "https://…/photo.jpg",     // optional: direct image instead of wiki
   "url": "https://…",                 // tickets / website
@@ -111,7 +116,7 @@ To schedule (what swiping "yes" does): `"status": "yes", "date": "2026-11-28", "
 
 ```json
 {
-  "id": "lot-2", "role": "outbound",  // outbound | return | "<from>><to>" (e.g. "krakow>wroclaw") | "arrival><city>" | "<city>>departure"
+  "id": "lot-2", "role": "outbound",  // outbound | return | "<from>><to>" (e.g. "krakow>zakopane") | "arrival><city>" | "<city>>departure"
   "type": "flight", "title": "LOT 2 LAX → WAW", "city": "transit", "status": "booked",
   "description": "Confirmation ABC123.",
   "from": { "name": "LAX", "address": "…", "lat": 33.9416, "lng": -118.4085, "tz": "America/Los_Angeles", "time": "2026-11-20T15:55" },
@@ -122,7 +127,12 @@ To schedule (what swiping "yes" does): `"status": "yes", "date": "2026-11-28", "
 
 Items without a `role` (a booked Uber or tour bus, say) are shown as-is on their day.
 
-## Website exports (`data/inbox/`)
+## Saved from the website (`data/inbox/`, `data/sync.json`)
+
+Phones with a GitHub token commit their changes straight into `data/inbox/`; the deploy workflow applies them (see AGENTS.md).
+You only need to do it by hand for a pasted or downloaded export:
+
+### Exports
 
 ⋯ → "Download changes" gives `{ "type": "poland-planner-changes", "exportedBy", "overrides", "added", "route", "preferences" }`.
 Save it into `data/inbox/`, then run `node scripts/apply-changes.mjs && node scripts/validate.mjs`. Picks and edits are merged

@@ -22,7 +22,8 @@
     "tags": [
       "walk"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "gdn-solidarity",
@@ -49,7 +50,8 @@
       "open": "10:00",
       "close": "17:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "gdn-ww2",
@@ -76,7 +78,8 @@
       "open": "10:00",
       "close": "17:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "gdn-st-marys",
@@ -98,7 +101,8 @@
       "approx": true
     },
     "wiki": "St._Mary's_Church,_Gdańsk",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "gdn-mariacka",
@@ -123,7 +127,8 @@
       "walk",
       "shopping"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "gdn-crane",
@@ -145,7 +150,8 @@
       "approx": true
     },
     "wiki": "Gdańsk_Crane",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "unknown"
   },
   {
     "id": "gdn-xmas",
@@ -170,7 +176,8 @@
       "christmas",
       "evening"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "gdn-westerplatte",
@@ -195,7 +202,8 @@
     "tags": [
       "history"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "gdn-sopot",
@@ -221,7 +229,8 @@
       "seaside",
       "half day"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "gdn-malbork",
@@ -253,7 +262,8 @@
       "open": "10:00",
       "close": "15:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "gdn-oliwa",
@@ -278,7 +288,8 @@
     "tags": [
       "music"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "gdn-goldwasser",
@@ -301,6 +312,7 @@
     },
     "wiki": "Danziger_Goldwasser",
     "addedBy": "claude",
-    "vegan": "limited"
+    "vegan": "limited",
+    "dog": "unknown"
   }
 ]

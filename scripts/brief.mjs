@@ -39,6 +39,8 @@ if (days.length) out.push(`- Days touching ${c.name}: ${days.join(', ')}`);
 out.push(`- Season: late Nov – early Dec. Cold (~0 °C), sunset ~15:30–15:50, Christmas markets open. Prefer indoor/evening-friendly things.`);
 out.push(`\n## Who we are`);
 for (const t of d.prefs.travelers || []) out.push(`- ${t.name}${(t.diet || []).length ? ` (diet: ${t.diet.join(', ')})` : ''}${t.notes ? `: ${t.notes}` : ''}`);
+for (const pt of d.prefs.pets || []) out.push(`- Traveling with a ${pt.size || ''} ${pt.type || 'pet'}${pt.name ? ` (${pt.name})` : ''}: prefer dog-friendly places and rate every idea's "dog" field`);
+if (d.prefs.transport) out.push(`- Transport: prefer ${(d.prefs.transport.prefer || []).join(', ')}; avoid ${(d.prefs.transport.avoid || []).join(', ')}`);
 out.push(`- Interests (find more of these): ${(d.prefs.interests || []).join(', ') || '–'}`);
 out.push(`- AVOID (never suggest): ${(d.prefs.avoid || []).join(', ') || '–'}`);
 for (const f of d.prefs.flexible || []) out.push(`- Flexible: ${f}`);
@@ -47,6 +49,8 @@ for (const [st, label] of [['yes', 'YES (planned)'], ['maybe', 'MAYBE'], ['idea'
   const l = by(st);
   if (l.length) out.push(`${label}:\n${l.map((a) => `  - ${a.id}: ${a.title} [${a.type}]${prefMatch(a, d.prefs).love.length ? ' ⭐' : ''}`).join('\n')}`);
 }
+const dogOk = mine.filter((a) => a.dog === 'yes' || a.dog === 'carrier').length;
+out.push(`\nDog-friendly ideas so far: ${dogOk} of ${mine.length}`);
 const types = Object.entries(mine.reduce((m, a) => ({ ...m, [a.type]: (m[a.type] || 0) + 1 }), {})).map(([k, v]) => `${k}:${v}`).join(' ');
 out.push(`\nType mix so far: ${types || 'none'}`);
 out.push(`\n## Task`);

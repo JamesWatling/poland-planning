@@ -1,0 +1,324 @@
+[
+  {
+    "id": "prg-old-town-square",
+    "title": "Old Town Square & Astronomical Clock",
+    "type": "sight",
+    "city": "prague",
+    "status": "idea",
+    "description": "The Gothic heart of Prague. Watch the medieval astronomical clock strike the hour.",
+    "address": "Staroměstské náměstí, 110 00 Praha 1",
+    "lat": 50.0875,
+    "lng": 14.4214,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "walk",
+      "architecture"
+    ],
+    "wiki": "Old_Town_Square",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-charles-bridge",
+    "title": "Charles Bridge at sunset",
+    "type": "sight",
+    "city": "prague",
+    "status": "idea",
+    "description": "The 14th-century statue-lined bridge over the Vltava. Go around sunset (about 4 PM) or early morning to avoid crowds.",
+    "address": "Karlův most, 110 00 Praha 1",
+    "lat": 50.0865,
+    "lng": 14.4114,
+    "duration": 45,
+    "maxDuration": 60,
+    "suggestedStart": "15:30",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "sunset"
+    ],
+    "wiki": "Charles_Bridge",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-castle",
+    "title": "Prague Castle & St. Vitus Cathedral",
+    "type": "museum",
+    "city": "prague",
+    "status": "idea",
+    "description": "The world's largest ancient castle complex: St. Vitus Cathedral, Golden Lane and the Old Royal Palace.",
+    "address": "Hradčany, 119 08 Praha 1",
+    "lat": 50.0902,
+    "lng": 14.4005,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 450,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "09:00",
+      "close": "16:00"
+    },
+    "hoursApprox": true,
+    "notes": "Courtyards are fine with a dog; interiors are not.",
+    "wiki": "Prague_Castle",
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-xmas",
+    "title": "Prague Christmas Markets",
+    "type": "event",
+    "city": "prague",
+    "status": "idea",
+    "description": "Stalls, a giant tree and mulled wine on Old Town Square and Wenceslas Square. Some of the best markets in Europe.",
+    "address": "Staroměstské náměstí, 110 00 Praha 1",
+    "lat": 50.087,
+    "lng": 14.421,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "christmas",
+      "evening"
+    ],
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-petrin",
+    "title": "Petřín Hill & lookout tower",
+    "type": "nature",
+    "city": "prague",
+    "status": "idea",
+    "description": "A wooded hill with a mini Eiffel Tower and a view over the red rooftops. Walk up or take the funicular.",
+    "address": "Petřínské sady, 118 00 Praha 1",
+    "lat": 50.0835,
+    "lng": 14.3951,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "13:00",
+    "price": {
+      "amount": 150,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "park"
+    ],
+    "notes": "The park is dog-friendly; the tower itself may not be.",
+    "wiki": "Petřín_Lookout_Tower",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-josefov",
+    "title": "Jewish Quarter (Josefov) & Jewish Museum",
+    "type": "museum",
+    "city": "prague",
+    "status": "idea",
+    "description": "Historic synagogues and the haunting Old Jewish Cemetery on one combined ticket.",
+    "address": "U Staré školy 141/1, 110 00 Praha 1",
+    "lat": 50.09,
+    "lng": 14.418,
+    "duration": 150,
+    "maxDuration": 180,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 500,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "history"
+    ],
+    "wiki": "Josefov",
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-mala-strana",
+    "title": "Malá Strana walk & Lennon Wall",
+    "type": "tour",
+    "city": "prague",
+    "status": "idea",
+    "description": "Baroque lanes below the castle, the Lennon Wall, and Kampa Island by the river.",
+    "address": "Velkopřevorské náměstí, 118 00 Praha 1",
+    "lat": 50.0866,
+    "lng": 14.4066,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "walk"
+    ],
+    "wiki": "Malá_Strana",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-vysehrad",
+    "title": "Vyšehrad fortress walk",
+    "type": "nature",
+    "city": "prague",
+    "status": "idea",
+    "description": "A quieter hilltop fortress with river views, a basilica and a famous cemetery. Locals walk their dogs here.",
+    "address": "V Pevnosti 159/5b, 128 00 Praha 2",
+    "lat": 50.0645,
+    "lng": 14.418,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "walk",
+      "history"
+    ],
+    "wiki": "Vyšehrad",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-letna",
+    "title": "Letná Park view",
+    "type": "nature",
+    "city": "prague",
+    "status": "idea",
+    "description": "A big park on a bluff with the classic bridges-of-Prague view, and dogs everywhere.",
+    "address": "Letenské sady, 170 00 Praha 7",
+    "lat": 50.096,
+    "lng": 14.423,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "14:30",
+    "price": {
+      "amount": 0,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "views",
+      "park"
+    ],
+    "wiki": "Letná",
+    "dog": "yes",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-maitrea",
+    "title": "Dinner at Maitrea (vegetarian, lots of vegan)",
+    "type": "food",
+    "city": "prague",
+    "status": "idea",
+    "description": "A popular vegetarian restaurant just off Old Town Square, with plenty of vegan dishes.",
+    "address": "Týnská ulička 1064/6, 110 00 Praha 1",
+    "lat": 50.0882,
+    "lng": 14.4237,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 400,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "vegan": "great",
+    "dog": "unknown",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-national-museum",
+    "title": "National Museum",
+    "type": "museum",
+    "city": "prague",
+    "status": "idea",
+    "description": "A grand neo-Renaissance museum at the top of Wenceslas Square, with natural history and Czech history exhibits.",
+    "address": "Václavské náměstí 68, 110 00 Praha 1",
+    "lat": 50.079,
+    "lng": 14.431,
+    "duration": 150,
+    "maxDuration": 180,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 300,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "18:00"
+    },
+    "hoursApprox": true,
+    "wiki": "National_Museum_(Prague)",
+    "dog": "no",
+    "addedBy": "claude"
+  },
+  {
+    "id": "prg-black-light",
+    "title": "Black light theatre show",
+    "type": "event",
+    "city": "prague",
+    "status": "idea",
+    "description": "A uniquely Prague form of theatre: glowing puppets and dancers in UV light. About 75 minutes, so no language needed.",
+    "address": "Old Town, Prague (venue varies)",
+    "lat": 50.0855,
+    "lng": 14.42,
+    "duration": 75,
+    "maxDuration": 90,
+    "suggestedStart": "19:30",
+    "price": {
+      "amount": 700,
+      "currency": "CZK",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "evening",
+      "show"
+    ],
+    "wiki": "Black_light_theatre",
+    "dog": "no",
+    "addedBy": "claude"
+  }
+]

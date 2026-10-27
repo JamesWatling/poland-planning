@@ -4,7 +4,8 @@ Instructions for AI agents (Claude Code, Codex, etc.) working in this repo. Huma
 
 ## What this is
 
-A small static website for planning a trip to Poland (**Thu Nov 19 – Thu Dec 10, 2026**) for James and his wife.
+A small static website for planning a train trip through **Warsaw, Gdańsk, Kraków, Zakopane and Prague** (LOT flights LAX ⇄ WAW,
+**Nov 20 – Dec 9, 2026**) for James, his wife, and their small dog. Only use those five cities unless they ask.
 It's served by GitHub Pages: https://jameswatling.github.io/poland-planning/
 
 There's no build step and no framework: `index.html` + `styles.css` + `app.js` (UI) + `planner.js` (pure logic, shared with the scripts).
@@ -13,7 +14,7 @@ served free by GitHub Pages, and easy to diff. Most requests are just edits to t
 
 ## Who you're probably talking to
 
-James, or his wife (vegan, may not be technical). Be friendly, skip the jargon, and confirm what you changed in plain words.
+James, or his wife (vegan, may not be technical). They travel with a small dog and want **trains, not planes** between cities. Be friendly, skip the jargon, and confirm what you changed in plain words.
 Commit and push to `main` when asked so it shows on the site (about 1 min).
 
 ## The data, in the order it should be decided
@@ -26,6 +27,7 @@ Commit and push to `main` when asked so it shows on the site (about 1 min).
 | 4 | `data/preferences.json` | Interests (boost), **avoid** (hard exclude), travelers and diets (wife is vegan), flexible preferences, lodging wishes | website (Our preferences) or agents |
 | 5 | `data/activities/<city>.json` | **The activity database**: every idea with its status: idea / maybe / yes / **no** | website (swipes, exported) and agents (research) |
 | 6 | `data/transport.json` | Only **booked** flights and trains. A `role` replaces the generated placeholder | agents, when the user books |
+| – | `data/inbox/`, `data/sync.json` | Changes saved from phones (see below) and the log of which were applied/rejected | the deploy workflow |
 | – | `data/trip.json` | Trip dates, home and airport, planning settings, exchange rates | rarely |
 
 Stays (where we sleep each night) and the trains between cities are **generated** from `route.json` + `routes.json`.
@@ -61,11 +63,25 @@ python3 -m http.server 8000         # preview at http://localhost:8000
 - **Don't overplan.** Keep each day at or under `settings.maxActivityMinutes` (8h) with ≥ 2h free. Jet-lag days (Nov 21–22) should be light.
 - **Sensible hours.** Nothing before 08:00 or after 22:30 local, except unmovable transport.
 - **No overlaps**, and leave travel time. Every activity needs `lat`/`lng` so the site can estimate it.
+- **The dog.** Every activity has `dog`: yes / carrier / no / unknown. Prefer dog-friendly ideas, and make sure each city has plenty of dog-friendly walks, parks and cafés. "No dogs" isn't an exclusion (one person can walk the dog), but the site flags it. Lodging must be dog-friendly. Trains only between cities; never suggest flights.
 - **Respect preferences.** Never add ideas matching `avoid`. Rank `interests` higher. Every `food` item needs a `vegan` rating, and each city needs several genuinely vegan-friendly places.
 - **The DB is append-only in spirit.** Never delete an idea someone rejected; it stays `"status": "no"` so it's never suggested again. Don't add duplicates or close variants of existing ideas (check `node scripts/brief.mjs <city>`).
 - **Be honest about uncertainty.** Verify with web search when you can. Mark prices `approx`, and hours `hoursApprox`. Never invent bookings or flight numbers; leave things generated or `placeholder` until the user gives real details.
 - Season: late Nov – early Dec, around 0 °C, sunset about 3:30–4 PM, Christmas markets on. Favour indoor and evening-friendly options, and put viewpoints near sunset.
 - Time zones: Poland `Europe/Warsaw` (CET, UTC+1), LA `America/Los_Angeles` (PST, UTC−8). JSON times are **local wall-clock**.
+
+## How changes from the website get saved
+
+1. On a phone, swipes and edits are applied instantly and kept in that browser (localStorage).
+2. **Save to shared plan** (the bar above the tabs) commits them as one JSON file to `data/inbox/` via the GitHub API, using a
+   fine-grained token for this repo only (Contents: read & write), set once per phone under ⋯ → GitHub connection.
+3. `.github/workflows/pages.yml` runs on that push: `scripts/apply-changes.mjs` merges each inbox file (oldest first) into the
+   data files, **validates each batch on its own** (rolling back and moving it to `data/inbox/failed/` if it would break the data),
+   records the result in `data/sync.json`, commits, and redeploys. Runs are serialized, so two people saving at once is fine.
+4. The phone keeps showing its saved changes as "pending" until `data/sync.json` lists them as applied (about 1–2 min), then reloads.
+   If a batch was rejected, its changes come back as unsaved on that phone, with the error.
+
+Without a token, ⋯ → Share link / Download changes still work, and an agent can apply a pasted export with `apply-changes`.
 
 ## Code notes (if you change the UI)
 

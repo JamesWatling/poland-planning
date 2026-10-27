@@ -1,18 +1,122 @@
 [
-  { "from": "warsaw", "to": "krakow", "mode": "train", "minutes": 140, "price": { "amount": 150, "currency": "PLN" }, "notes": "PKP Intercity EIP, frequent.", "approx": true },
-  { "from": "warsaw", "to": "gdansk", "mode": "train", "minutes": 170, "price": { "amount": 160, "currency": "PLN" }, "notes": "PKP Intercity EIP.", "approx": true },
-  { "from": "warsaw", "to": "wroclaw", "mode": "train", "minutes": 220, "price": { "amount": 150, "currency": "PLN" }, "notes": "Also about 1h by LOT domestic flight.", "approx": true },
-  { "from": "warsaw", "to": "poznan", "mode": "train", "minutes": 155, "price": { "amount": 130, "currency": "PLN" }, "approx": true },
-  { "from": "warsaw", "to": "torun", "mode": "train", "minutes": 165, "price": { "amount": 80, "currency": "PLN" }, "approx": true },
-  { "from": "warsaw", "to": "lodz", "mode": "train", "minutes": 75, "price": { "amount": 40, "currency": "PLN" }, "approx": true },
-  { "from": "warsaw", "to": "lublin", "mode": "train", "minutes": 120, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
-  { "from": "warsaw", "to": "zakopane", "mode": "train", "minutes": 300, "price": { "amount": 180, "currency": "PLN" }, "notes": "Train to Kraków, then bus. Direct trains are slower.", "approx": true },
-  { "from": "krakow", "to": "gdansk", "mode": "train", "minutes": 310, "price": { "amount": 180, "currency": "PLN" }, "notes": "Also about 1h by domestic flight.", "approx": true },
-  { "from": "krakow", "to": "wroclaw", "mode": "train", "minutes": 190, "price": { "amount": 80, "currency": "PLN" }, "notes": "Buses (FlixBus) take a similar time.", "approx": true },
-  { "from": "krakow", "to": "zakopane", "mode": "bus", "minutes": 135, "price": { "amount": 30, "currency": "PLN" }, "notes": "Frequent minibuses from the bus station behind Kraków Główny.", "approx": true },
-  { "from": "gdansk", "to": "wroclaw", "mode": "train", "minutes": 330, "price": { "amount": 140, "currency": "PLN" }, "notes": "Also about 1h by domestic flight.", "approx": true },
-  { "from": "gdansk", "to": "poznan", "mode": "train", "minutes": 180, "price": { "amount": 100, "currency": "PLN" }, "approx": true },
-  { "from": "gdansk", "to": "torun", "mode": "train", "minutes": 150, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
-  { "from": "wroclaw", "to": "poznan", "mode": "train", "minutes": 125, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
-  { "from": "poznan", "to": "torun", "mode": "train", "minutes": 115, "price": { "amount": 50, "currency": "PLN" }, "approx": true }
+  {
+    "from": "warsaw",
+    "to": "gdansk",
+    "mode": "train",
+    "minutes": 170,
+    "price": {
+      "amount": 160,
+      "currency": "PLN"
+    },
+    "notes": "PKP Intercity EIP, frequent. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "warsaw",
+    "to": "krakow",
+    "mode": "train",
+    "minutes": 140,
+    "price": {
+      "amount": 150,
+      "currency": "PLN"
+    },
+    "notes": "PKP Intercity EIP, frequent. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "warsaw",
+    "to": "zakopane",
+    "mode": "train",
+    "minutes": 330,
+    "price": {
+      "amount": 180,
+      "currency": "PLN"
+    },
+    "notes": "Direct PKP Intercity trains run a few times a day; or train to Kraków and change. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "warsaw",
+    "to": "prague",
+    "mode": "train",
+    "minutes": 510,
+    "price": {
+      "amount": 300,
+      "currency": "PLN"
+    },
+    "notes": "Direct EuroCity day train (~8.5h), or an overnight train where you can book a private compartment (easiest with a dog). Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "gdansk",
+    "to": "krakow",
+    "mode": "train",
+    "minutes": 310,
+    "price": {
+      "amount": 180,
+      "currency": "PLN"
+    },
+    "notes": "PKP Intercity EIP direct. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "gdansk",
+    "to": "zakopane",
+    "mode": "train",
+    "minutes": 660,
+    "price": {
+      "amount": 200,
+      "currency": "PLN"
+    },
+    "notes": "Long direct IC trains (some overnight), or via Kraków. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "gdansk",
+    "to": "prague",
+    "mode": "train",
+    "minutes": 720,
+    "price": {
+      "amount": 350,
+      "currency": "PLN"
+    },
+    "notes": "No good direct option; change in Warsaw or Kraków (or break the trip). Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "krakow",
+    "to": "zakopane",
+    "mode": "train",
+    "minutes": 150,
+    "price": {
+      "amount": 35,
+      "currency": "PLN"
+    },
+    "notes": "Trains about 2.5h; buses about 2h15 but check their pet rules. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "krakow",
+    "to": "prague",
+    "mode": "train",
+    "minutes": 420,
+    "price": {
+      "amount": 250,
+      "currency": "PLN"
+    },
+    "notes": "About 7h with a change (Katowice/Ostrava/Bohumín) or a direct ČD/RegioJet service; also a night train. Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  },
+  {
+    "from": "zakopane",
+    "to": "prague",
+    "mode": "train",
+    "minutes": 570,
+    "price": {
+      "amount": 280,
+      "currency": "PLN"
+    },
+    "notes": "Via Kraków (Zakopane → Kraków → Prague). Small dogs travel in a carrier on PKP Intercity and Czech ČD trains (usually free in a carrier; a dog outside a carrier needs a ticket, leash and muzzle).",
+    "approx": true
+  }
 ]

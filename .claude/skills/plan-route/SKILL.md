@@ -1,6 +1,6 @@
 ---
 name: plan-route
-description: Decide or change which cities the Poland trip visits, in what order, for how many nights, where to stay (stay areas), and pinned days. Use for "add Toruń", "fly into Kraków instead", "we must be in Gdańsk on Dec 5", "rebalance the nights", or "where should we stay".
+description: Decide or change which cities the Poland trip visits, in what order, for how many nights, where to stay (stay areas), and pinned days. Use for "add a night in Zakopane", "fly into Kraków instead", "we must be in Gdańsk on Dec 5", "rebalance the nights", or "where should we stay".
 ---
 
 The route is the first thing to lock down. Stays and trains are generated from it.
@@ -13,4 +13,4 @@ The route is the first thing to lock down. Stays and trains are generated from i
 4. Suggest a stay area per city (from `stayAreas`), based on `preferences.json` → `lodging.wants` (e.g. near the station when there's an early train).
 5. Run `node scripts/validate.mjs`. It warns about scheduled activities that no longer fit the route, and cities without ideas;
    offer to run `research-city` for new cities.
-6. Commit ("Route: add Toruń, 1 night") and push if asked.
+6. Commit ("Route: Prague 4 nights") and push if asked.

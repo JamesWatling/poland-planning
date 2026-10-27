@@ -22,19 +22,24 @@
       "area": "srodmiescie"
     },
     {
+      "city": "gdansk",
+      "nights": 3,
+      "area": "main-town"
+    },
+    {
       "city": "krakow",
-      "nights": 6,
+      "nights": 4,
       "area": "kazimierz"
     },
     {
-      "city": "wroclaw",
+      "city": "zakopane",
       "nights": 3,
-      "area": "old-town"
+      "area": "centre"
     },
     {
-      "city": "gdansk",
-      "nights": 4,
-      "area": "main-town"
+      "city": "prague",
+      "nights": 3,
+      "area": "vinohrady"
     },
     {
       "city": "warsaw",

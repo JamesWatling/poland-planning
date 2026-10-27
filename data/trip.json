@@ -1,5 +1,5 @@
 {
-  "name": "Poland 2026",
+  "name": "Poland & Prague 2026",
   "startDate": "2026-11-19",
   "endDate": "2026-12-10",
   "home": {
@@ -9,7 +9,13 @@
     "lat": 34.0522,
     "lng": -118.2437,
     "placeholder": true,
-    "airport": { "code": "LAX", "name": "Los Angeles Intl (LAX)", "address": "1 World Way, Los Angeles, CA 90045", "lat": 33.9416, "lng": -118.4085 }
+    "airport": {
+      "code": "LAX",
+      "name": "Los Angeles Intl (LAX)",
+      "address": "1 World Way, Los Angeles, CA 90045",
+      "lat": 33.9416,
+      "lng": -118.4085
+    }
   },
   "settings": {
     "dayStart": "08:00",
@@ -18,6 +24,16 @@
     "latest": "22:30",
     "maxActivityMinutes": 480,
     "minRestMinutes": 120,
-    "fxToUSD": { "USD": 1, "PLN": 0.27, "EUR": 1.16 }
+    "fxToUSD": {
+      "USD": 1,
+      "PLN": 0.27,
+      "EUR": 1.16,
+      "CZK": 0.043
+    }
+  },
+  "github": {
+    "owner": "JamesWatling",
+    "repo": "poland-planning",
+    "branch": "main"
   }
 }

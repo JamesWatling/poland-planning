@@ -24,7 +24,8 @@
       "easy"
     ],
     "addedBy": "claude",
-    "vegan": "options"
+    "vegan": "options",
+    "dog": "unknown"
   },
   {
     "id": "waw-old-town",
@@ -50,7 +51,8 @@
       "walk",
       "UNESCO"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "waw-royal-castle",
@@ -77,7 +79,8 @@
     },
     "wiki": "Royal_Castle,_Warsaw",
     "addedBy": "claude",
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-polin",
@@ -104,7 +107,8 @@
     },
     "wiki": "POLIN_Museum_of_the_History_of_Polish_Jews",
     "addedBy": "claude",
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-uprising",
@@ -132,7 +136,8 @@
     "wiki": "Warsaw_Rising_Museum",
     "notes": "Usually closed Tuesdays: check.",
     "addedBy": "claude",
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-pkin",
@@ -163,7 +168,8 @@
       "open": "10:00",
       "close": "20:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-lazienki",
@@ -194,7 +200,9 @@
       "open": "10:00",
       "close": "16:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no",
+    "notes": "Dogs are not allowed in Łazienki Park."
   },
   {
     "id": "waw-wilanow",
@@ -221,7 +229,8 @@
       "open": "10:00",
       "close": "16:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-copernicus",
@@ -248,7 +257,8 @@
       "open": "09:00",
       "close": "18:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-neon",
@@ -270,7 +280,8 @@
       "approx": true
     },
     "wiki": "Neon_Muzeum",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "waw-praga",
@@ -296,7 +307,8 @@
       "walk",
       "street art"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   },
   {
     "id": "waw-vodka",
@@ -318,7 +330,8 @@
       "approx": true
     },
     "wiki": "Polish_Vodka_Museum",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "waw-milk-bar",
@@ -344,7 +357,8 @@
       "cheap eats"
     ],
     "addedBy": "claude",
-    "vegan": "limited"
+    "vegan": "limited",
+    "dog": "unknown"
   },
   {
     "id": "waw-koszyki",
@@ -367,7 +381,8 @@
     },
     "wiki": "Hala_Koszyki",
     "addedBy": "claude",
-    "vegan": "options"
+    "vegan": "options",
+    "dog": "unknown"
   },
   {
     "id": "waw-chopin-museum",
@@ -394,7 +409,8 @@
       "open": "11:00",
       "close": "20:00"
     },
-    "hoursApprox": true
+    "hoursApprox": true,
+    "dog": "no"
   },
   {
     "id": "waw-chopin-recital",
@@ -419,7 +435,8 @@
     "tags": [
       "music"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "no"
   },
   {
     "id": "waw-xmas",
@@ -445,6 +462,7 @@
       "christmas",
       "evening"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "dog": "yes"
   }
 ]
