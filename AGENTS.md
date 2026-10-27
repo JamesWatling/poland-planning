@@ -8,52 +8,67 @@ A small static website for planning a trip to Poland (**Thu Nov 19 – Thu Dec 1
 It's served by GitHub Pages: https://jameswatling.github.io/poland-planning/
 
 There's no build step and no framework: `index.html` + `styles.css` + `app.js` (UI) + `planner.js` (pure logic, shared with the scripts).
-**All trip content lives in JSON files under `data/`.** Most requests ("add this restaurant", "we booked the flight",
-"move Wawel to Friday") are just edits to those files. You rarely need to touch the code.
+**Everything about the trip lives in JSON files under `data/`. Those files *are* the database.** They're versioned by git,
+served free by GitHub Pages, and easy to diff. Most requests are just edits to them; you rarely need to touch the code.
 
 ## Who you're probably talking to
 
-Often James's wife, who may not be technical. Be friendly, skip the jargon, confirm what you changed in plain words
-(e.g. "Added *Ice skating at Rynek* to Kraków ideas, best around 6 PM, ~1h, ~25 PLN"), and push when asked, so it shows on the site.
+James, or his wife (vegan, may not be technical). Be friendly, skip the jargon, and confirm what you changed in plain words.
+Commit and push to `main` when asked so it shows on the site (about 1 min).
 
-## Files
+## The data, in the order it should be decided
 
-| Path | What |
-|---|---|
-| `data/trip.json` | Dates, settings (sensible hours, max activity/day, exchange rates), **cities**, and **stays** (where we sleep each night) |
-| `data/transport.json` | Flights, trains, buses, booked Ubers: anything with a from → to |
-| `data/activities/<city>.json` | Ideas and planned activities for each city |
-| `data/inbox/` | Change files exported from the website; apply them with `node scripts/apply-changes.mjs` |
-| `scripts/validate.mjs` | Checks the data. **Run it after every edit.** CI runs it and won't deploy if it fails |
-| `scripts/apply-changes.mjs` | Merges website exports into the data files |
-| `data/AGENTS.md` | Field-by-field data reference with examples. Read it before editing data |
+| # | File | What | Who edits |
+|---|---|---|---|
+| 1 | `data/cities.json` | **Catalog of cities we support**: time zone, airport, main station, recommended nights, **stay areas** (neighbourhoods to book in) | agents (research) |
+| 2 | `data/routes.json` | **Travel times between cities** (train/bus minutes, typical price) | agents (research) |
+| 3 | `data/route.json` | **The route**: fly-in city, fly-home city, ordered stops with nights + stay area, **pinned days**, flight placeholder times | website (Edit route) or agents |
+| 4 | `data/preferences.json` | Interests (boost), **avoid** (hard exclude), travelers and diets (wife is vegan), flexible preferences, lodging wishes | website (Our preferences) or agents |
+| 5 | `data/activities/<city>.json` | **The activity database**: every idea with its status: idea / maybe / yes / **no** | website (swipes, exported) and agents (research) |
+| 6 | `data/transport.json` | Only **booked** flights and trains. A `role` replaces the generated placeholder | agents, when the user books |
+| – | `data/trip.json` | Trip dates, home and airport, planning settings, exchange rates | rarely |
 
-## Workflow
+Stays (where we sleep each night) and the trains between cities are **generated** from `route.json` + `routes.json`.
+Don't hand-write them. Change the route, or add a booked item to `transport.json` with the matching `role`
+(`outbound`, `return`, `warsaw>krakow`, `arrival>krakow`, `gdansk>departure`).
 
-1. Read `data/AGENTS.md` for the schema.
-2. Edit the JSON (keep 2-space indentation, one object per item, and stable `id`s).
-3. Run `node scripts/validate.mjs` and fix any **ERROR**s. Warnings are fine. Placeholders and missing bookings are expected.
-4. Preview if useful: `python3 -m http.server 8000`, then open http://localhost:8000.
-5. Commit with a plain message (e.g. "Add ice skating idea in Kraków") and push to `main`. GitHub Pages deploys in about 1 min.
+Full field reference: **`data/AGENTS.md`**. Read it before editing data.
 
-## Planning rules (please follow them when suggesting or scheduling things)
+## Scripts (run from the repo root)
 
-- **Don't overplan.** Keep each day at or under `settings.maxActivityMinutes` (8h) and leave ≥ 2h of free time. Jet-lag days (Nov 21–22) should be light.
-- **Sensible hours.** Nothing starts before 08:00 or ends after 22:30 local time unless it's a flight or train we can't move.
-- **No overlaps.** Leave travel time between stops. The site estimates it from coordinates, so every activity needs `lat`/`lng`.
-- **Every activity gets** an address, lat/lng, a typical `duration` and a `maxDuration` (minutes), a `suggestedStart`, an approximate `price` (PLN per person, `"approx": true`), and a 1–2 sentence description.
-- **Images:** set `wiki` to the English Wikipedia article title (e.g. `"Wawel_Castle"`); the site pulls its photo. Or set `image` to a direct image URL.
-- **Be honest about uncertainty.** Prices, opening hours and Christmas market dates change. Mark them `approx` and tell the user to check. Never invent flight numbers or bookings; use `"placeholder": true` until the user gives real details.
-- It's late November / early December: cold (around 0 °C), dark by about 3:30–4 PM, and Christmas markets are on. Favour indoor options and put viewpoints near sunset.
-- Time zones: Poland is `Europe/Warsaw` (CET, UTC+1); LA is `America/Los_Angeles` (PST, UTC−8). Times in JSON are **local wall-clock** times.
+```bash
+node scripts/validate.mjs           # ALWAYS run after editing data. CI blocks the deploy on errors
+node scripts/route.mjs              # show the route: stays, generated trains, pins, warnings
+node scripts/route.mjs --regenerate # refit nights / order / pins (same as the website's ✨ Regenerate) and save
+node scripts/brief.mjs              # ideas per city (total / undecided / yes / maybe / no)
+node scripts/brief.mjs krakow       # research brief for a city: dates, preferences, everything already in the DB
+node scripts/apply-changes.mjs      # merge website exports from data/inbox/ into the data files
+python3 -m http.server 8000         # preview at http://localhost:8000
+```
 
-## Statuses (how the "Tinder" decisions are stored)
+## Jobs (skills in `.claude/skills/`, subagent in `.claude/agents/`)
 
-`idea` (not decided) · `maybe` · `yes` (scheduled: needs `date` + `start`) · `no` (rejected; keep it so it isn't suggested again) ·
-`planned` / `booked` (transport and other fixed things).
+- **plan-route**: lock down cities, nights, pins and stay areas first. Everything else depends on this.
+- **research-city**: fill or extend a city's activities using web research and preferences, never repeating rejected ideas.
+  For several cities, run the `city-researcher` subagent once per city, in parallel.
+- **research-logistics**: refine `routes.json` with real timetables and prices, and suggest stay areas or listings.
+- **add-idea**: add specific things someone mentions.
+- **plan-day**: build a balanced day from the ideas.
+- **apply-changes**: save picks someone made on their phone into the repo.
 
-## Code notes (if you do change the UI)
+## Planning rules
 
-- Keep it dependency-free and mobile-first. Test at phone width (Playwright is available: `require('playwright')`).
-- `planner.js` must stay DOM-free; `scripts/validate.mjs` imports it.
-- Decisions made on the website live in the browser's localStorage until exported. The JSON in the repo is the shared source of truth.
+- **Don't overplan.** Keep each day at or under `settings.maxActivityMinutes` (8h) with ≥ 2h free. Jet-lag days (Nov 21–22) should be light.
+- **Sensible hours.** Nothing before 08:00 or after 22:30 local, except unmovable transport.
+- **No overlaps**, and leave travel time. Every activity needs `lat`/`lng` so the site can estimate it.
+- **Respect preferences.** Never add ideas matching `avoid`. Rank `interests` higher. Every `food` item needs a `vegan` rating, and each city needs several genuinely vegan-friendly places.
+- **The DB is append-only in spirit.** Never delete an idea someone rejected; it stays `"status": "no"` so it's never suggested again. Don't add duplicates or close variants of existing ideas (check `node scripts/brief.mjs <city>`).
+- **Be honest about uncertainty.** Verify with web search when you can. Mark prices `approx`, and hours `hoursApprox`. Never invent bookings or flight numbers; leave things generated or `placeholder` until the user gives real details.
+- Season: late Nov – early Dec, around 0 °C, sunset about 3:30–4 PM, Christmas markets on. Favour indoor and evening-friendly options, and put viewpoints near sunset.
+- Time zones: Poland `Europe/Warsaw` (CET, UTC+1), LA `America/Los_Angeles` (PST, UTC−8). JSON times are **local wall-clock**.
+
+## Code notes (if you change the UI)
+
+- Keep it dependency-free and mobile-first; test at phone width (`require('playwright')` works in cloud sessions).
+- `planner.js` must stay DOM-free; the scripts import it.
+- Website changes live in each browser's localStorage until exported (⋯ → Download/Copy/Share). The repo JSON is the shared truth.

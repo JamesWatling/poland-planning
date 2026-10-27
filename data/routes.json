@@ -1,0 +1,18 @@
+[
+  { "from": "warsaw", "to": "krakow", "mode": "train", "minutes": 140, "price": { "amount": 150, "currency": "PLN" }, "notes": "PKP Intercity EIP, frequent.", "approx": true },
+  { "from": "warsaw", "to": "gdansk", "mode": "train", "minutes": 170, "price": { "amount": 160, "currency": "PLN" }, "notes": "PKP Intercity EIP.", "approx": true },
+  { "from": "warsaw", "to": "wroclaw", "mode": "train", "minutes": 220, "price": { "amount": 150, "currency": "PLN" }, "notes": "Also about 1h by LOT domestic flight.", "approx": true },
+  { "from": "warsaw", "to": "poznan", "mode": "train", "minutes": 155, "price": { "amount": 130, "currency": "PLN" }, "approx": true },
+  { "from": "warsaw", "to": "torun", "mode": "train", "minutes": 165, "price": { "amount": 80, "currency": "PLN" }, "approx": true },
+  { "from": "warsaw", "to": "lodz", "mode": "train", "minutes": 75, "price": { "amount": 40, "currency": "PLN" }, "approx": true },
+  { "from": "warsaw", "to": "lublin", "mode": "train", "minutes": 120, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
+  { "from": "warsaw", "to": "zakopane", "mode": "train", "minutes": 300, "price": { "amount": 180, "currency": "PLN" }, "notes": "Train to Kraków, then bus. Direct trains are slower.", "approx": true },
+  { "from": "krakow", "to": "gdansk", "mode": "train", "minutes": 310, "price": { "amount": 180, "currency": "PLN" }, "notes": "Also about 1h by domestic flight.", "approx": true },
+  { "from": "krakow", "to": "wroclaw", "mode": "train", "minutes": 190, "price": { "amount": 80, "currency": "PLN" }, "notes": "Buses (FlixBus) take a similar time.", "approx": true },
+  { "from": "krakow", "to": "zakopane", "mode": "bus", "minutes": 135, "price": { "amount": 30, "currency": "PLN" }, "notes": "Frequent minibuses from the bus station behind Kraków Główny.", "approx": true },
+  { "from": "gdansk", "to": "wroclaw", "mode": "train", "minutes": 330, "price": { "amount": 140, "currency": "PLN" }, "notes": "Also about 1h by domestic flight.", "approx": true },
+  { "from": "gdansk", "to": "poznan", "mode": "train", "minutes": 180, "price": { "amount": 100, "currency": "PLN" }, "approx": true },
+  { "from": "gdansk", "to": "torun", "mode": "train", "minutes": 150, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
+  { "from": "wroclaw", "to": "poznan", "mode": "train", "minutes": 125, "price": { "amount": 60, "currency": "PLN" }, "approx": true },
+  { "from": "poznan", "to": "torun", "mode": "train", "minutes": 115, "price": { "amount": 50, "currency": "PLN" }, "approx": true }
+]

@@ -1,0 +1,17 @@
+{
+  "interests": ["museums", "history", "christmas markets", "architecture", "views", "local food"],
+  "avoid": [],
+  "travelers": [
+    { "name": "James", "diet": [], "notes": "" },
+    { "name": "Wife", "diet": ["vegan"], "notes": "Rename me." }
+  ],
+  "flexible": [
+    "Food stops should have good vegan options (one of us is vegan, the other eats anything)",
+    "Relaxed mornings: first activity around 9:30–10:00",
+    "One or two big things a day, not a checklist"
+  ],
+  "lodging": {
+    "wants": ["walkable to the old town / main sights", "close to a tram or the train station", "quiet at night", "kitchen", "washing machine"],
+    "budgetPerNight": { "amount": 150, "currency": "USD" }
+  }
+}

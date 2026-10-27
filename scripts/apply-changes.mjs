@@ -4,19 +4,17 @@
 //   node scripts/apply-changes.mjs                 # applies every data/inbox/*.json, then moves them to data/inbox/applied/
 //   node scripts/apply-changes.mjs path/to/x.json  # applies specific files
 //
-// Picks (status/date/start) and edits become part of the shared plan; new ideas are appended to their city file.
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, renameSync, existsSync } from 'node:fs';
+// Picks (status/date/start) and edits become part of the shared plan; new ideas are appended to their city file;
+// an edited route or preferences replaces data/route.json / data/preferences.json.
+import { readdirSync, mkdirSync, renameSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { TRANSPORT } from '../planner.js';
+import { readJSON, writeJSON, isTransport } from './lib.mjs';
 
 const META = ['updatedBy', 'updatedAt'];
-const readJSON = (p) => JSON.parse(readFileSync(p, 'utf8'));
-const writeJSON = (p, v) => writeFileSync(p, `${JSON.stringify(v, null, 2)}\n`);
-
-const trip = readJSON('data/trip.json');
-const fileFor = (it) => (TRANSPORT.has(it.type) ? trip.transportFile : trip.cities[it.city]?.file);
-const files = [trip.transportFile, ...Object.values(trip.cities).map((c) => c.file)].filter(Boolean);
-const data = Object.fromEntries(files.map((f) => [f, readJSON(f)]));
+const cities = readJSON('data/cities.json');
+const files = ['data/transport.json', ...Object.values(cities).map((c) => c.file).filter(Boolean)];
+const data = Object.fromEntries(files.map((f) => [f, readJSON(f, [])]));
+const fileFor = (it) => (isTransport(it) ? 'data/transport.json' : cities[it.city]?.file);
 const find = (id) => { for (const f of files) { const i = data[f].findIndex((x) => x.id === id); if (i >= 0) return { f, i }; } return null; };
 
 function clean(obj) {
@@ -39,8 +37,7 @@ for (const path of inputs) {
   for (const [id, patch] of Object.entries(ch.overrides || {})) {
     const hit = find(id);
     if (!hit) { log.push(`? ${id}: not found, skipped`); continue; }
-    const merged = { ...data[hit.f][hit.i], ...patch };
-    data[hit.f][hit.i] = clean(merged);
+    data[hit.f][hit.i] = clean({ ...data[hit.f][hit.i], ...patch });
     log.push(`~ ${id} (${who}): ${Object.keys(patch).filter((k) => !META.includes(k)).map((k) => `${k}=${JSON.stringify(patch[k])}`).join(', ')}`);
   }
   for (const added of ch.added || []) {
@@ -52,9 +49,11 @@ for (const path of inputs) {
     data[f].push(item);
     log.push(`+ ${item.id} (${who}) → ${f}`);
   }
+  if (ch.route?.data) { writeJSON('data/route.json', ch.route.data); log.push(`~ route.json replaced (${ch.route.updatedBy || who}): ${ch.route.data.stops.map((s) => `${s.city} ${s.nights}n`).join(' → ')}`); }
+  if (ch.preferences?.data) { writeJSON('data/preferences.json', ch.preferences.data); log.push(`~ preferences.json replaced (${ch.preferences.updatedBy || who})`); }
 }
 
-for (const f of files) writeJSON(f, data[f]);
+for (const f of files) if (existsSync(f) || data[f].length) writeJSON(f, data[f]);
 if (fromInbox) {
   mkdirSync('data/inbox/applied', { recursive: true });
   for (const p of inputs) renameSync(p, join('data/inbox/applied', basename(p)));

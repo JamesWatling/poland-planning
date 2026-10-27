@@ -230,3 +230,20 @@ main { max-width: 760px; margin: 0 auto; padding: 14px 16px calc(90px + env(safe
   .stats { grid-template-columns: repeat(2, 1fr); }
   .cal .cell { min-height: 64px; padding: 4px; }
 }
+
+/* route */
+.route-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 8px; }
+.route-line .stop { background: color-mix(in srgb, var(--c) 16%, var(--card)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: var(--text); padding: 4px 10px; border-radius: 999px; font-size: 13px; white-space: nowrap; }
+.route-line .hop { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.stop-row { border: 1px solid var(--line); border-left: 4px solid var(--c, var(--line)); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+.hop-row { font-size: 12px; color: var(--muted); padding: 2px 0 8px 18px; }
+.stepper { display: inline-flex; align-items: center; gap: 8px; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); }
+.city-card { border-left: 4px solid var(--c); padding: 10px 12px; margin-bottom: 8px; background: var(--bg); border-radius: 10px; }
+.chip.love { background: color-mix(in srgb, #eab308 18%, var(--card)); border-color: transparent; }
+.chip.avoid { background: color-mix(in srgb, var(--no) 16%, var(--card)); border-color: transparent; color: var(--no); }
+.chip.vegan { background: color-mix(in srgb, var(--yes) 16%, var(--card)); border-color: transparent; }
+.chip .x { border: 0; background: none; padding: 0 0 0 2px; font-size: 11px; color: var(--muted); }
+.idea.excluded { opacity: .55; }
+.sheet { overflow-x: hidden; }
+.chip.wrap { white-space: normal; text-align: left; }

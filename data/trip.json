@@ -1,9 +1,16 @@
 {
   "name": "Poland 2026",
-  "travelers": ["James"],
   "startDate": "2026-11-19",
   "endDate": "2026-12-10",
-  "transportFile": "data/transport.json",
+  "home": {
+    "city": "los-angeles",
+    "name": "Home",
+    "address": "Los Angeles (set your home address)",
+    "lat": 34.0522,
+    "lng": -118.2437,
+    "placeholder": true,
+    "airport": { "code": "LAX", "name": "Los Angeles Intl (LAX)", "address": "1 World Way, Los Angeles, CA 90045", "lat": 33.9416, "lng": -118.4085 }
+  },
   "settings": {
     "dayStart": "08:00",
     "dayEnd": "22:00",
@@ -12,71 +19,5 @@
     "maxActivityMinutes": 480,
     "minRestMinutes": 120,
     "fxToUSD": { "USD": 1, "PLN": 0.27, "EUR": 1.16 }
-  },
-  "cities": {
-    "los-angeles": { "name": "Los Angeles", "short": "LA", "tz": "America/Los_Angeles", "currency": "USD", "color": "#7c3aed", "lat": 34.0522, "lng": -118.2437 },
-    "transit": { "name": "In transit", "short": "✈️", "tz": "America/Los_Angeles", "currency": "USD", "color": "#64748b" },
-    "warsaw": { "name": "Warsaw", "short": "WAW", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#dc2626", "lat": 52.2297, "lng": 21.0122, "file": "data/activities/warsaw.json" },
-    "krakow": { "name": "Kraków", "short": "KRK", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#d97706", "lat": 50.0614, "lng": 19.9366, "file": "data/activities/krakow.json" },
-    "wroclaw": { "name": "Wrocław", "short": "WRO", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#059669", "lat": 51.1079, "lng": 17.0385, "file": "data/activities/wroclaw.json" },
-    "gdansk": { "name": "Gdańsk", "short": "GDN", "tz": "Europe/Warsaw", "currency": "PLN", "color": "#2563eb", "lat": 54.352, "lng": 18.6466, "file": "data/activities/gdansk.json" }
-  },
-  "stays": [
-    {
-      "id": "home-before",
-      "city": "los-angeles",
-      "checkIn": "2026-11-19",
-      "checkOut": "2026-11-20",
-      "lodging": { "name": "Home", "address": "Los Angeles (set your home address)", "lat": 34.0522, "lng": -118.2437, "placeholder": true }
-    },
-    {
-      "id": "overnight-flight",
-      "city": "transit",
-      "checkIn": "2026-11-20",
-      "checkOut": "2026-11-21",
-      "lodging": { "name": "Overnight flight to Poland" }
-    },
-    {
-      "id": "warsaw-1",
-      "city": "warsaw",
-      "checkIn": "2026-11-21",
-      "checkOut": "2026-11-25",
-      "lodging": { "name": "Airbnb – Warsaw (TBD)", "address": "Śródmieście, Warsaw (update when booked)", "lat": 52.2297, "lng": 21.0122, "placeholder": true }
-    },
-    {
-      "id": "krakow",
-      "city": "krakow",
-      "checkIn": "2026-11-25",
-      "checkOut": "2026-12-01",
-      "lodging": { "name": "Airbnb – Kraków (TBD)", "address": "Old Town / Kazimierz, Kraków (update when booked)", "lat": 50.0565, "lng": 19.942, "placeholder": true }
-    },
-    {
-      "id": "wroclaw",
-      "city": "wroclaw",
-      "checkIn": "2026-12-01",
-      "checkOut": "2026-12-04",
-      "lodging": { "name": "Airbnb – Wrocław (TBD)", "address": "Old Town, Wrocław (update when booked)", "lat": 51.109, "lng": 17.03, "placeholder": true }
-    },
-    {
-      "id": "gdansk",
-      "city": "gdansk",
-      "checkIn": "2026-12-04",
-      "checkOut": "2026-12-08",
-      "lodging": { "name": "Airbnb – Gdańsk (TBD)", "address": "Main Town, Gdańsk (update when booked)", "lat": 54.348, "lng": 18.65, "placeholder": true }
-    },
-    {
-      "id": "warsaw-2",
-      "city": "warsaw",
-      "checkIn": "2026-12-08",
-      "checkOut": "2026-12-10",
-      "lodging": { "name": "Airbnb – Warsaw (TBD)", "address": "Śródmieście, Warsaw (update when booked)", "lat": 52.2297, "lng": 21.0122, "placeholder": true }
-    },
-    {
-      "id": "home-after",
-      "city": "los-angeles",
-      "checkIn": "2026-12-10",
-      "checkOut": "2026-12-11",
-      "lodging": { "name": "Home", "address": "Los Angeles (set your home address)", "lat": 34.0522, "lng": -118.2437, "placeholder": true }
-    }
-  ]
+  }
 }

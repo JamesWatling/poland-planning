@@ -23,7 +23,8 @@
       "jet lag",
       "easy"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "vegan": "options"
   },
   {
     "id": "waw-old-town",
@@ -342,7 +343,8 @@
     "tags": [
       "cheap eats"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "vegan": "limited"
   },
   {
     "id": "waw-koszyki",
@@ -364,7 +366,8 @@
       "approx": true
     },
     "wiki": "Hala_Koszyki",
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "vegan": "options"
   },
   {
     "id": "waw-chopin-museum",

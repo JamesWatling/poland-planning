@@ -1,56 +1,72 @@
 #!/usr/bin/env node
 // Checks the trip data for mistakes. Run from the repo root: node scripts/validate.mjs
 // Exits 1 on errors (CI blocks the deploy); warnings are printed but don't fail.
-import { readFileSync } from 'node:fs';
-import { createPlanner, tripDays, TRANSPORT, ACTIVITY_TYPES, STATUSES, SCHEDULED } from '../planner.js';
+import { createPlanner, tripDays, prefMatch, TRANSPORT, ACTIVITY_TYPES, STATUSES, SCHEDULED, VEGAN } from '../planner.js';
+import { loadAll } from './lib.mjs';
 
 const errors = [], warnings = [];
-const read = (p) => {
-  try { return JSON.parse(readFileSync(p, 'utf8')); } catch (e) { errors.push(`${p}: ${e.message}`); return null; }
-};
 const DATE = /^\d{4}-\d{2}-\d{2}$/, HM = /^([01]\d|2[0-3]):[0-5]\d$/, LOCAL = /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/;
 const validTz = (tz) => { try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); return true; } catch { return false; } };
 
-const trip = read('data/trip.json');
-if (!trip) finish();
+let data;
+try { data = loadAll(); } catch (e) { errors.push(e.message); finish(); }
+const { trip, cities, routes, route, prefs, transport, activities } = data;
 
+// trip.json
 if (!DATE.test(trip.startDate) || !DATE.test(trip.endDate) || trip.startDate > trip.endDate) errors.push('trip.json: startDate/endDate must be YYYY-MM-DD with start ≤ end');
-for (const [id, c] of Object.entries(trip.cities)) {
-  if (!validTz(c.tz)) errors.push(`city ${id}: invalid tz "${c.tz}"`);
-  if (!c.name || !c.color || !c.currency) errors.push(`city ${id}: needs name, color and currency`);
+if (!cities[trip.home?.city]) errors.push('trip.json: home.city must be a key in cities.json');
+if (!trip.home?.airport?.code) errors.push('trip.json: home.airport needs code/name/lat/lng');
+
+// cities.json
+for (const [id, c] of Object.entries(cities)) {
+  if (!validTz(c.tz)) errors.push(`cities.json ${id}: invalid tz "${c.tz}"`);
+  if (!c.name || !c.color || !c.currency) errors.push(`cities.json ${id}: needs name, color and currency`);
+  if (c.kind === 'city') {
+    if (typeof c.lat !== 'number' || typeof c.lng !== 'number') errors.push(`cities.json ${id}: needs lat/lng`);
+    if (!c.nights?.ideal) warnings.push(`cities.json ${id}: no nights.ideal`);
+    if (!c.station) warnings.push(`cities.json ${id}: no station (trains will start at the city centre)`);
+    if (!(c.stayAreas || []).length) warnings.push(`cities.json ${id}: no stayAreas`);
+  }
+}
+for (const id of ['transit', 'unplanned']) if (!cities[id]) errors.push(`cities.json: missing the special "${id}" entry`);
+
+// routes.json
+for (const r of routes) {
+  if (!cities[r.from] || !cities[r.to]) errors.push(`routes.json ${r.from}>${r.to}: unknown city`);
+  if (!(r.minutes > 0)) errors.push(`routes.json ${r.from}>${r.to}: minutes must be > 0`);
 }
 
-// Every night of the trip must be covered by exactly one stay.
-for (const s of trip.stays) {
-  if (!trip.cities[s.city]) errors.push(`stay ${s.id}: unknown city "${s.city}"`);
-  if (!DATE.test(s.checkIn) || !DATE.test(s.checkOut) || s.checkIn >= s.checkOut) errors.push(`stay ${s.id}: checkIn must be before checkOut (YYYY-MM-DD)`);
-  if (s.lodging?.placeholder) warnings.push(`stay ${s.id}: lodging is a placeholder (${s.lodging.name})`);
+// route.json
+for (const end of ['arrival', 'departure']) {
+  const e = route[end];
+  if (cities[e?.city]?.kind !== 'city') errors.push(`route.json ${end}.city must be a city in cities.json`);
+  if (!LOCAL.test(e?.flight?.depart || '') || !LOCAL.test(e?.flight?.arrive || '')) errors.push(`route.json ${end}.flight needs depart/arrive "YYYY-MM-DDTHH:MM"`);
 }
-for (const d of tripDays(trip)) {
-  const n = trip.stays.filter((s) => s.checkIn <= d && d < s.checkOut).length;
-  if (d < trip.endDate && n !== 1) errors.push(`night of ${d}: covered by ${n} stays (need exactly 1)`);
-}
+route.stops.forEach((s, i) => {
+  if (cities[s.city]?.kind !== 'city') errors.push(`route.json stops[${i}]: unknown city "${s.city}"`);
+  if (!(Number.isInteger(s.nights) && s.nights >= 1)) errors.push(`route.json stops[${i}]: nights must be a whole number ≥ 1`);
+  if (s.area && !(cities[s.city]?.stayAreas || []).some((a) => a.id === s.area)) warnings.push(`route.json stops[${i}]: area "${s.area}" isn't in ${s.city}'s stayAreas`);
+  if (i && route.stops[i - 1].city === s.city) warnings.push(`route.json stops[${i}]: same city twice in a row, so merge them`);
+});
+for (const p of route.pins || []) if (!DATE.test(p.date) || !cities[p.city]) errors.push(`route.json pin ${JSON.stringify(p)}: needs a date and a known city`);
 
-const files = [trip.transportFile, ...Object.values(trip.cities).map((c) => c.file)].filter(Boolean);
-const items = [];
-for (const f of files) {
-  const list = read(f);
-  if (!list) continue;
-  if (!Array.isArray(list)) { errors.push(`${f}: must be a JSON array`); continue; }
-  for (const it of list) items.push({ ...it, _file: f });
-}
+// preferences.json
+for (const k of ['interests', 'avoid', 'flexible']) if (prefs[k] && !Array.isArray(prefs[k])) errors.push(`preferences.json: ${k} must be a list`);
+for (const t of prefs.travelers || []) if (!t.name) errors.push('preferences.json: every traveler needs a name');
+const vegan = (prefs.travelers || []).some((t) => (t.diet || []).includes('vegan'));
 
+// activities + transport
 const ids = new Set();
 const inTrip = (d) => d >= trip.startDate && d <= trip.endDate;
-for (const it of items) {
+for (const it of [...activities, ...transport.map((t) => ({ ...t, _file: 'data/transport.json' }))]) {
   const where = `${it._file} → ${it.id || it.title || '(no id)'}`;
   if (!it.id) errors.push(`${where}: missing id`);
   else if (ids.has(it.id)) errors.push(`${where}: duplicate id`);
   ids.add(it.id);
   if (!it.title) errors.push(`${where}: missing title`);
-  if (!trip.cities[it.city]) errors.push(`${where}: unknown city "${it.city}"`);
-  const transport = TRANSPORT.has(it.type);
-  if (!transport && !ACTIVITY_TYPES.includes(it.type)) errors.push(`${where}: unknown type "${it.type}"`);
+  if (!cities[it.city]) errors.push(`${where}: unknown city "${it.city}"`);
+  const transportItem = TRANSPORT.has(it.type);
+  if (!transportItem && !ACTIVITY_TYPES.includes(it.type)) errors.push(`${where}: unknown type "${it.type}"`);
   if (it.status && !STATUSES.includes(it.status)) errors.push(`${where}: unknown status "${it.status}"`);
   if (it.date != null && (!DATE.test(it.date) || !inTrip(it.date))) errors.push(`${where}: date "${it.date}" must be within the trip`);
   if (it.suggestedDate != null && (!DATE.test(it.suggestedDate) || !inTrip(it.suggestedDate))) errors.push(`${where}: suggestedDate "${it.suggestedDate}" must be within the trip`);
@@ -61,6 +77,7 @@ for (const it of items) {
   if (it.price != null && (typeof it.price !== 'object' || (it.price.amount != null && typeof it.price.amount !== 'number') || !it.price.currency)) errors.push(`${where}: price must be {"amount": number|null, "currency": "PLN"}`);
   if (it.price?.currency && trip.settings.fxToUSD[it.price.currency] == null) warnings.push(`${where}: no fxToUSD rate for ${it.price.currency}`);
   if (it.hours && (!HM.test(it.hours.open || '') || !HM.test(it.hours.close || ''))) errors.push(`${where}: hours must be {"open":"HH:MM","close":"HH:MM"}`);
+  if (it.vegan != null && !VEGAN.includes(it.vegan)) errors.push(`${where}: vegan must be one of ${VEGAN.join(', ')}`);
   if (it.from?.time || it.to?.time) {
     for (const end of ['from', 'to']) {
       const p = it[end];
@@ -69,16 +86,26 @@ for (const it of items) {
   } else if (SCHEDULED.has(it.status) && (!it.date || !it.start)) {
     errors.push(`${where}: status "${it.status}" needs a date and start`);
   }
-  if (!transport && it.lat == null) warnings.push(`${where}: no lat/lng, so travel time can't be estimated`);
+  if (!transportItem && it.lat == null) warnings.push(`${where}: no lat/lng, so travel time can't be estimated`);
+  if (vegan && it.type === 'food' && !it.vegan) warnings.push(`${where}: food without a "vegan" rating`);
+  if (!transportItem && it.status !== 'no') {
+    const pm = prefMatch(it, prefs);
+    if (pm.avoid.length) warnings.push(`${where}: matches "avoid" (${pm.avoid.join(', ')}). Mark it "no" or drop it`);
+  }
   if (it.placeholder) warnings.push(`${where}: placeholder`);
 }
 
 if (!errors.length) {
-  const P = createPlanner(trip, items);
-  for (const it of items) {
+  const P = createPlanner({ trip, cities, routes, route, prefs, activities, transport });
+  for (const w of P.itin.warnings) errors.push(`route: ${w}`);
+  for (const it of P.items) {
     const t = P.timing(it);
     if (t && t.e <= t.s) errors.push(`${it.id}: ends before it starts (check time zones)`);
   }
+  const onRoute = new Set(route.stops.map((s) => s.city));
+  for (const it of activities) if (it.status === 'yes' && !onRoute.has(it.city)) warnings.push(`${it.id}: scheduled but ${it.city} isn't on the route anymore`);
+  for (const id of onRoute) if (!activities.some((a) => a.city === id)) warnings.push(`${id}: on the route but has no ideas yet. Run the research-city skill`);
+  for (const s of P.itin.stays) if (s.lodging?.placeholder && cities[s.city]?.kind === 'city') warnings.push(`stay ${s.city} ${s.checkIn}: lodging not booked yet`);
   for (const d of tripDays(trip)) for (const w of P.dayInfo(d).warnings) warnings.push(`${d}: ${w}`);
 }
 
@@ -87,6 +114,6 @@ finish();
 function finish() {
   for (const w of warnings) console.log(`  warn  ${w}`);
   for (const e of errors) console.log(`  ERROR ${e}`);
-  console.log(errors.length ? `\n✗ ${errors.length} error(s), ${warnings.length} warning(s)` : `\n✓ Data OK (${items.length} items, ${warnings.length} warning(s))`);
+  console.log(errors.length ? `\n✗ ${errors.length} error(s), ${warnings.length} warning(s)` : `\n✓ Data OK (${data.activities.length} activities, ${warnings.length} warning(s))`);
   process.exit(errors.length ? 1 : 0);
 }

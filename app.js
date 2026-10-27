@@ -1,27 +1,38 @@
 // Poland trip planner UI. Vanilla JS, no build step. Data lives in /data (see AGENTS.md).
-import { TRANSPORT, ACTIVITY_TYPES, SCHEDULED, createPlanner, tripDays, addDays, localHM, zonedToUtc, hasLoc, estimateLeg } from './planner.js';
+import {
+  TRANSPORT, ACTIVITY_TYPES, SCHEDULED, createPlanner, regenerateRoute, findRoute,
+  tripDays, addDays, daysBetween, localHM, localDate, zonedToUtc, hasLoc, estimateLeg,
+} from './planner.js';
 
 const ICON = {
   sight: '🏛️', museum: '🖼️', food: '🍽️', tour: '🧭', daytrip: '🚌', nature: '🌳', event: '🎄', nightlife: '🎷', shopping: '🛍️', rest: '😴', other: '📌',
   flight: '✈️', train: '🚆', bus: '🚌', uber: '🚕', taxi: '🚕', car: '🚗', ferry: '⛴️', transfer: '🚐',
 };
 const MODE = { walk: ['🚶', 'walk', 'walking'], transit: ['🚋', 'transit', 'transit'], uber: ['🚕', 'Uber/Bolt', 'driving'] };
-const LS = { overrides: 'pp.overrides', added: 'pp.added', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
+const VEGAN_LABEL = { great: '🌱 great vegan', options: '🌱 vegan options', limited: '🌱 limited vegan', none: '🚫 no vegan', unknown: '🌱 vegan?' };
+const LS = { overrides: 'pp.overrides', added: 'pp.added', route: 'pp.route', prefs: 'pp.prefs', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
 
 const $ = (sel, el = document) => el.querySelector(sel);
 const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const clone = (x) => JSON.parse(JSON.stringify(x));
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
 
 const S = {
-  trip: null, base: [], items: [], byId: {}, P: null,
+  trip: null, cities: {}, routes: [], baseRoute: null, basePrefs: null, baseActivities: [], baseTransport: [],
+  items: [], byId: {}, P: null,
   overrides: store.get(LS.overrides, {}),
   added: store.get(LS.added, []),
+  routeLocal: store.get(LS.route, null), // { data, updatedBy, updatedAt } when changed on this device
+  prefsLocal: store.get(LS.prefs, null),
   ui: { view: 'trip', date: null, ideaCity: 'all', ideaStatus: 'undecided', ...store.get(LS.ui, {}) },
 };
+const route = () => S.routeLocal?.data || S.baseRoute;
+const prefs = () => S.prefsLocal?.data || S.basePrefs;
+const routeCities = () => Object.entries(S.cities).filter(([, c]) => c.kind === 'city');
 
 // ---------- formatting ----------
 
@@ -41,38 +52,56 @@ function priceText(p) {
 const cityChip = (id) => { const c = S.P.city(id); return `<span class="chip city" style="--c:${c.color}">${esc(c.name)}</span>`; };
 const mapsUrl = (a) => hasLoc(a) ? `https://www.google.com/maps/search/?api=1&query=${a.lat},${a.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.address || a.name || '')}`;
 const dirUrl = (a, b, mode) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}&travelmode=${mode}`;
+function prefBadges(it, showLove = true) {
+  const m = S.P.prefMatch(it);
+  return [
+    showLove && m.love.length ? `<span class="chip love" title="Matches your interests">⭐ ${esc(m.love.join(', '))}</span>` : '',
+    m.avoid.length ? `<span class="chip avoid">🚫 ${esc(m.avoid.join(', '))}</span>` : '',
+    m.diet ? `<span class="chip ${m.diet === 'none' ? 'avoid' : m.diet === 'great' || m.diet === 'options' ? 'vegan' : ''}">${VEGAN_LABEL[m.diet]}</span>` : '',
+  ].join('');
+}
 
 // ---------- data ----------
 
-async function getJSON(path) {
+async function getJSON(path, fallback) {
   const r = await fetch(`${path}?v=${Date.now()}`);
-  if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  if (!r.ok) { if (fallback !== undefined) return fallback; throw new Error(`${path}: HTTP ${r.status}`); }
   return r.json();
 }
 
 async function load() {
-  S.trip = await getJSON('data/trip.json');
-  const files = [S.trip.transportFile, ...Object.values(S.trip.cities).map((c) => c.file)].filter(Boolean);
-  S.base = (await Promise.all(files.map(getJSON))).flat();
+  const [trip, cities, routes, baseRoute, basePrefs, transport] = await Promise.all([
+    getJSON('data/trip.json'), getJSON('data/cities.json'), getJSON('data/routes.json', []),
+    getJSON('data/route.json'), getJSON('data/preferences.json', {}), getJSON('data/transport.json', []),
+  ]);
+  Object.assign(S, { trip, cities, routes, baseRoute, basePrefs, baseTransport: transport });
+  const files = Object.values(cities).map((c) => c.file).filter(Boolean);
+  S.baseActivities = (await Promise.all(files.map((f) => getJSON(f, [])))).flat();
   rebuild();
   const days = tripDays(S.trip);
   if (!days.includes(S.ui.date)) S.ui.date = days.includes(todayISO()) ? todayISO() : days[0];
 }
 
 function rebuild() {
-  const baseIds = new Set(S.base.map((i) => i.id));
-  S.items = [...S.base, ...S.added.filter((a) => !baseIds.has(a.id))].map((it) => ({ ...it, ...(S.overrides[it.id] || {}) }));
+  const apply = (it) => ({ ...it, ...(S.overrides[it.id] || {}) });
+  const baseIds = new Set(S.baseActivities.map((i) => i.id));
+  const activities = [...S.baseActivities, ...S.added.filter((a) => !baseIds.has(a.id) && !TRANSPORT.has(a.type))].map(apply);
+  const transport = [...S.baseTransport, ...S.added.filter((a) => TRANSPORT.has(a.type))].map(apply);
+  S.P = createPlanner({ trip: S.trip, cities: S.cities, routes: S.routes, route: route(), prefs: prefs(), activities, transport });
+  S.items = S.P.items;
   S.byId = Object.fromEntries(S.items.map((i) => [i.id, i]));
-  S.P = createPlanner(S.trip, S.items);
 }
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
-const changeCount = () => Object.keys(S.overrides).length + S.added.length;
+const changeCount = () => Object.keys(S.overrides).length + S.added.length + (S.routeLocal ? 1 : 0) + (S.prefsLocal ? 1 : 0);
 function persist() {
   store.set(LS.overrides, S.overrides);
   store.set(LS.added, S.added);
+  store.set(LS.route, S.routeLocal);
+  store.set(LS.prefs, S.prefsLocal);
   rebuild();
 }
+const stamp = () => ({ updatedBy: whoAmI(), updatedAt: new Date().toISOString() });
 
 function whoAmI() {
   let name = store.get(LS.name, '');
@@ -83,17 +112,21 @@ function whoAmI() {
   return name;
 }
 
+const snapshot = () => JSON.stringify({ o: S.overrides, a: S.added, r: S.routeLocal, p: S.prefsLocal });
+const restorer = (snap) => () => { const { o, a, r, p } = JSON.parse(snap); Object.assign(S, { overrides: o, added: a, routeLocal: r, prefsLocal: p }); persist(); render(); };
+
 /** Apply a patch to an item; returns an undo function. */
 function patchItem(id, patch) {
-  const snap = JSON.stringify({ o: S.overrides, a: S.added });
-  const meta = { updatedBy: whoAmI(), updatedAt: new Date().toISOString() };
+  const undo = restorer(snapshot());
   const i = S.added.findIndex((a) => a.id === id);
-  if (i >= 0) S.added[i] = { ...S.added[i], ...patch, ...meta };
-  else S.overrides[id] = { ...(S.overrides[id] || {}), ...patch, ...meta };
+  if (i >= 0) S.added[i] = { ...S.added[i], ...patch, ...stamp() };
+  else S.overrides[id] = { ...(S.overrides[id] || {}), ...patch, ...stamp() };
   persist();
   render();
-  return () => { const { o, a } = JSON.parse(snap); S.overrides = o; S.added = a; persist(); render(); };
+  return undo;
 }
+function saveRoute(data) { const undo = restorer(snapshot()); S.routeLocal = { data, ...stamp() }; persist(); render(); return undo; }
+function savePrefs(data) { const undo = restorer(snapshot()); S.prefsLocal = { data, ...stamp() }; persist(); render(); return undo; }
 
 function sayYes(id, date, start) {
   const it = S.byId[id];
@@ -152,7 +185,29 @@ function go(view, date) {
   window.scrollTo({ top: 0 });
 }
 
-// Trip overview: calendar + stays + timeline
+// Trip overview: route + calendar + stays + timeline
+function routeSummary() {
+  const r = route(), it = S.P.itin;
+  const stops = r.stops;
+  const parts = stops.map((s, i) => {
+    const c = S.P.city(s.city);
+    const leg = i ? findRoute(S.routes, S.cities, stops[i - 1].city, s.city) : null;
+    const hop = leg && leg.minutes ? `<span class="hop">${leg.mode === 'bus' ? '🚌' : '🚆'} ${fmtDur(leg.minutes)}${leg.estimated ? '*' : ''}</span>` : '';
+    return `${hop}<span class="stop" style="--c:${c.color}">${esc(c.name)} <b>${s.nights}n</b>${s.lockNights ? ' 🔒' : ''}</span>`;
+  }).join('');
+  const totalTravel = stops.reduce((m, s, i) => (i ? m + findRoute(S.routes, S.cities, stops[i - 1].city, s.city).minutes : m), 0);
+  const nightsOk = it.assigned === it.nights;
+  return `<div class="card">
+    <div class="row between"><h2>Route</h2><button class="btn small primary" data-route>✏️ Edit route</button></div>
+    <div class="route-line">${parts}</div>
+    <div class="small muted">✈️ Land in ${esc(S.P.city(r.arrival.city).name)} ${fmtDay(it.arrDate)} · fly home from ${esc(S.P.city(r.departure.city).name)} ${fmtDay(it.depDate)}
+      · ${nightsOk ? `${it.nights} nights ✓` : `<b style="color:var(--no)">${it.assigned}/${it.nights} nights assigned</b>`} · ~${fmtDur(totalTravel)} on trains
+      ${(r.pins || []).length ? ` · 📌 ${r.pins.length} pinned day${r.pins.length > 1 ? 's' : ''}` : ''}</div>
+    ${it.warnings.length ? `<div class="warnings" style="margin:10px 0 0">${it.warnings.map((w) => `<div>⚠️ ${esc(w)}</div>`).join('')}</div>` : ''}
+    <div class="row wrap" style="margin-top:10px"><button class="btn small" data-cities>🏙️ Cities & travel times</button><button class="btn small" data-prefs>💚 Our preferences</button></div>
+  </div>`;
+}
+
 function viewTrip() {
   const days = tripDays(S.trip);
   const infos = Object.fromEntries(days.map((d) => [d, S.P.dayInfo(d)]));
@@ -162,6 +217,7 @@ function viewTrip() {
   const first = days[0], last = days.at(-1);
   let d = addDays(first, -new Date(`${first}T12:00Z`).getUTCDay());
   const stop = addDays(last, 6 - new Date(`${last}T12:00Z`).getUTCDay());
+  const pinned = new Set((route().pins || []).map((p) => p.date));
   let cells = '';
   for (; d <= stop; d = addDays(d, 1)) {
     const info = infos[d];
@@ -171,26 +227,24 @@ function viewTrip() {
     const m = S.P.city(info.morning.city), e = S.P.city(info.evening.city);
     const icons = info.items.map((x) => ICON[x.it.type] || '📌').join('');
     cells += `<button class="cell ${d === todayISO() ? 'today' : ''}" style="--c:${m.color};--c2:${e.color}" data-go-day="${d}">
-      <span class="num">${label}</span><span class="code">${m.short === e.short ? esc(e.short) : `${esc(m.short)}→${esc(e.short)}`}</span>
+      <span class="num">${label}${pinned.has(d) ? ' 📌' : ''}</span><span class="code">${m.short === e.short ? esc(e.short) : `${esc(m.short)}→${esc(e.short)}`}</span>
       <span class="icons">${icons}</span>${info.activity ? `<span class="hrs">${fmtDur(info.activity)}</span>` : ''}
       ${info.warnings.length ? '<span class="dot" title="Has warnings"></span>' : ''}</button>`;
   }
 
-  const stays = S.trip.stays.map((s) => {
+  const stays = S.P.itin.stays.map((s) => {
     const c = S.P.city(s.city);
-    const nights = (Date.parse(s.checkOut) - Date.parse(s.checkIn)) / 864e5;
+    const nights = daysBetween(s.checkIn, s.checkOut);
     return `<div class="stay" style="--c:${c.color}"><span class="swatch"></span><div class="grow">
       <div class="row between"><b>${esc(c.name)}</b><span class="muted small">${fmtDay(s.checkIn, { month: 'short', day: 'numeric' })} → ${fmtDay(s.checkOut, { month: 'short', day: 'numeric' })} · ${nights} night${nights > 1 ? 's' : ''}</span></div>
       <div class="small">${esc(s.lodging?.name || '')} ${s.lodging?.placeholder ? '<span class="chip ph">to book</span>' : ''}</div></div></div>`;
   }).join('');
 
   return `
-    <div class="card">
-      <div class="row between"><h2>Overview</h2><span class="muted small">${yes} planned · ${undecided} ideas to review</span></div>
-      <div class="row wrap" style="margin-top:8px">${Object.keys(S.trip.cities).filter((id) => S.trip.cities[id].file).map(cityChip).join('')}</div>
-    </div>
-    <div class="card"><div class="cal">${'SMTWTFS'.split('').map((x) => `<div class="dow">${x}</div>`).join('')}${cells}</div>
-      <p class="muted tiny" style="margin:8px 0 0">Tap a day to plan it. A yellow dot means that day has a warning.</p></div>
+    ${routeSummary()}
+    <div class="card"><div class="row between"><b>Calendar</b><span class="muted small">${yes} planned · ${undecided} ideas to review</span></div>
+      <div class="cal" style="margin-top:8px">${'SMTWTFS'.split('').map((x) => `<div class="dow">${x}</div>`).join('')}${cells}</div>
+      <p class="muted tiny" style="margin:8px 0 0">Tap a day to plan it. A yellow dot means that day has a warning; 📌 marks a pinned day.</p></div>
     <div class="section-title">Where we sleep</div>
     <div class="card">${stays}</div>
     <div class="section-title">Timeline (6 AM – midnight)</div>
@@ -230,12 +284,11 @@ function dayNav() {
 }
 
 function statsBlock(info) {
-  const cost = info.usd ? `${usd(info.usd)}` : '–';
   return `<div class="stats">
     <div class="stat"><b>${fmtDur(info.activity)}</b><span>activities</span></div>
     <div class="stat"><b>${fmtDur(info.transport + info.legMin)}</b><span>travel</span></div>
     <div class="stat"><b>${fmtDur(info.rest)}</b><span>free / rest</span></div>
-    <div class="stat"><b>${cost}</b><span>pp${info.ridesUsd ? ` + ~${usd(info.ridesUsd)} rides` : ''}</span></div></div>`;
+    <div class="stat"><b>${info.usd ? usd(info.usd) : '–'}</b><span>pp${info.ridesUsd ? ` + ~${usd(info.ridesUsd)} rides` : ''}</span></div></div>`;
 }
 
 function viewDay() {
@@ -244,6 +297,7 @@ function viewDay() {
   const deck = S.P.deckFor(S.ui.date).length;
   const where = m === e ? cityChip(info.evening.city) : `${cityChip(info.morning.city)} → ${cityChip(info.evening.city)}`;
   const maybes = S.items.filter((i) => i.status === 'maybe' && info.cities.includes(i.city));
+  const pin = (route().pins || []).find((p) => p.date === S.ui.date);
 
   let flow = endpoint('🌅', 'Start', info.morning.lodging);
   info.items.forEach((x, i) => {
@@ -256,6 +310,7 @@ function viewDay() {
   return `${dayNav()}
     <div class="card">
       <div class="row between wrap"><h2>${fmtDay(S.ui.date, { weekday: 'long', month: 'short', day: 'numeric' })}</h2><div class="row">${where}</div></div>
+      ${pin ? `<div class="small" style="margin-top:6px">📌 Pinned to ${esc(S.P.city(pin.city).name)}${pin.note ? `: ${esc(pin.note)}` : ''}</div>` : ''}
       ${statsBlock(info)}
       <div style="margin-top:12px">${dayBar(info)}</div>
     </div>
@@ -292,16 +347,18 @@ function itemCard(x, info) {
   const showTz = t.sTz !== info.eTz || t.eTz !== info.eTz;
   const when = `${fmtTime(t.s, t.sTz)}${showTz ? ` ${tzAbbr(t.s, t.sTz)}` : ''}<span>→ ${fmtTime(t.e, t.eTz)}${showTz ? ` ${tzAbbr(t.e, t.eTz)}` : ''}</span><span>${fmtDur(dur)}</span>`;
   const place = transport ? `${esc(it.from?.name || '')} → ${esc(it.to?.name || '')}` : it.address ? `<a href="${mapsUrl(it)}" target="_blank" rel="noopener">📍 ${esc(it.address)}</a>` : '';
+  const actions = it.auto
+    ? `<button class="btn small" data-detail="${esc(it.id)}">Details</button><button class="btn small" data-route>Change route</button>`
+    : transport
+      ? `<button class="btn small" data-detail="${esc(it.id)}">Details</button><button class="btn small" data-edit="${esc(it.id)}">Edit</button>`
+      : `<button class="btn small" data-detail="${esc(it.id)}">Details</button><button class="btn small" data-time="${esc(it.id)}">🕐 Time</button><button class="btn small" data-unschedule="${esc(it.id)}">Remove</button>`;
   return `<div class="item" style="--c:${c.color}">
     <div class="when">${when}</div>
     <div>
-      <div class="row between"><h3>${ICON[it.type] || '📌'} ${esc(it.title)}</h3></div>
+      <h3>${ICON[it.type] || '📌'} ${esc(it.title)}</h3>
       <div class="small muted">${place}</div>
-      <div class="row wrap small" style="margin-top:4px">${it.placeholder ? '<span class="chip ph">placeholder times</span>' : ''}${priceText(it.price) ? `<span class="chip">💰 ${esc(priceText(it.price))}</span>` : ''}${it.maxDuration ? `<span class="chip">max ${fmtDur(it.maxDuration)}</span>` : ''}${it.updatedBy ? `<span class="chip">by ${esc(it.updatedBy)}</span>` : ''}</div>
-      <div class="actions">
-        <button class="btn small" data-detail="${esc(it.id)}">Details</button>
-        ${transport ? `<button class="btn small" data-edit="${esc(it.id)}">Edit</button>` : `<button class="btn small" data-time="${esc(it.id)}">🕐 Time</button><button class="btn small" data-unschedule="${esc(it.id)}">Remove</button>`}
-      </div>
+      <div class="row wrap small" style="margin-top:4px">${it.placeholder ? `<span class="chip ph">${it.auto ? 'from route · not booked' : 'placeholder'}</span>` : ''}${priceText(it.price) ? `<span class="chip">💰 ${esc(priceText(it.price))}</span>` : ''}${prefBadges(it)}${it.updatedBy ? `<span class="chip">by ${esc(it.updatedBy)}</span>` : ''}</div>
+      <div class="actions">${actions}</div>
     </div></div>`;
 }
 
@@ -309,11 +366,12 @@ function itemCard(x, info) {
 function viewSwipe() {
   const info = S.P.dayInfo(S.ui.date);
   const deck = S.P.deckFor(S.ui.date);
+  const hiddenNote = deck.hidden.length ? ` · ${deck.hidden.length} hidden by your preferences` : '';
   const head = `${dayNav()}<div class="row between small" style="margin-bottom:6px"><span>${info.cities.map(cityChip).join(' ')}</span>
     <span class="muted">${fmtDur(info.activity)} planned · ${fmtDur(info.rest)} free</span></div>`;
   if (!deck.length) {
     return `${head}<div class="card empty"><div class="big">🎉</div><h3>No more ideas for this day</h3>
-      <p class="muted">Add your own, or look at the day plan.</p>
+      <p class="muted">Add your own, or look at the day plan.${hiddenNote}</p>
       <div class="row" style="justify-content:center"><button class="btn primary" data-add>＋ Add an idea</button><button class="btn" data-go="day">See the day</button></div></div>`;
   }
   const cards = deck.slice(0, 2).reverse().map((it, i, arr) => swipeCard(it, info, i === arr.length - 1)).join('');
@@ -325,14 +383,14 @@ function viewSwipe() {
       <button class="round sm time" data-swipe="time" aria-label="Yes, at a different time">🕐</button>
       <button class="round yes" data-swipe="yes" aria-label="Yes">✓</button>
     </div>
-    <p class="muted small" style="text-align:center">Swipe right = yes · left = no · up = pick a time<br>${deck.length} idea${deck.length > 1 ? 's' : ''} left for ${fmtDay(S.ui.date)}</p>`;
+    <p class="muted small" style="text-align:center">Swipe right = yes · left = no · up = pick a time<br>${deck.length} idea${deck.length > 1 ? 's' : ''} left for ${fmtDay(S.ui.date)}${hiddenNote}</p>`;
 }
 
 function swipeCard(it, info, top) {
   const c = S.P.city(it.city);
   const base = info.morning.lodging?.lat ? info.morning.lodging : info.evening.lodging;
   const leg = hasLoc(base) && hasLoc(it) ? estimateLeg(base, it, c.currency) : null;
-  const legText = leg ? `${MODE[leg.best][0]} ~${fmtDur(leg.min)} from ${esc(base.name.replace(/ \(TBD\)/, ''))}` : '';
+  const legText = leg ? `${MODE[leg.best][0]} ~${fmtDur(leg.min)} from your stay` : '';
   const slot = S.P.findSlot(it, S.ui.date);
   return `<div class="swipe-card ${top ? 'top' : 'back'}" style="--c:${c.color}" data-id="${esc(it.id)}">
     <span class="stamp yes">Yes</span><span class="stamp no">Nope</span><span class="stamp time">Pick time</span>
@@ -344,6 +402,7 @@ function swipeCard(it, info, top) {
         <span class="chip">🕙 ${fmtHM(slot.start)}${slot.shifted ? ' (next free)' : ''}${slot.conflict ? ' ⚠️ full' : ''}</span>
         ${priceText(it.price) ? `<span class="chip">💰 ${esc(priceText(it.price))}</span>` : ''}
         ${legText ? `<span class="chip">${legText}</span>` : ''}
+        ${prefBadges(it)}
         ${it.suggestedDate && it.suggestedDate !== S.ui.date ? `<span class="chip ph">best on ${fmtDay(it.suggestedDate)}</span>` : ''}
         ${it.status === 'maybe' ? '<span class="chip status maybe">maybe</span>' : ''}
       </div>
@@ -392,15 +451,18 @@ function bindSwipe() {
 // Ideas list
 function viewIdeas() {
   const f = S.ui;
-  const cityIds = Object.keys(S.trip.cities).filter((id) => S.items.some((i) => i.city === id && !TRANSPORT.has(i.type)));
+  const cityIds = Object.keys(S.cities).filter((id) => S.items.some((i) => i.city === id && !TRANSPORT.has(i.type)));
   const statusFilters = { undecided: 'To review', yes: 'Yes', maybe: 'Maybe', no: 'No', all: 'All' };
-  const match = (i) => !TRANSPORT.has(i.type) && (f.ideaCity === 'all' || i.city === f.ideaCity) && (
-    f.ideaStatus === 'all' || (f.ideaStatus === 'undecided' ? (!i.status || i.status === 'idea') : i.status === f.ideaStatus));
-  const list = S.items.filter(match).sort((a, b) => (a.date || '9').localeCompare(b.date || '9') || a.city.localeCompare(b.city) || a.title.localeCompare(b.title));
+  const inStatus = (i, k) => k === 'all' || (k === 'undecided' ? (!i.status || i.status === 'idea') : i.status === k);
+  const inCity = (i) => !TRANSPORT.has(i.type) && (f.ideaCity === 'all' || i.city === f.ideaCity);
+  const list = S.items.filter((i) => inCity(i) && inStatus(i, f.ideaStatus))
+    .sort((a, b) => (a.date || '9').localeCompare(b.date || '9') || S.P.prefMatch(b).love.length - S.P.prefMatch(a).love.length || a.city.localeCompare(b.city) || a.title.localeCompare(b.title));
+  const emptyCities = routeCities().filter(([id]) => route().stops.some((s) => s.city === id) && !S.items.some((i) => i.city === id && !TRANSPORT.has(i.type)));
   return `
     <div class="row between" style="margin-bottom:8px"><h2>Ideas</h2><button class="btn primary" data-add>＋ Add idea</button></div>
     <div class="filters">${['all', ...cityIds].map((id) => `<span class="chip ${f.ideaCity === id ? 'on' : ''}" data-filter-city="${id}">${id === 'all' ? 'All cities' : esc(S.P.city(id).name)}</span>`).join('')}</div>
-    <div class="filters">${Object.entries(statusFilters).map(([k, v]) => `<span class="chip ${f.ideaStatus === k ? 'on' : ''}" data-filter-status="${k}">${v} (${S.items.filter((i) => !TRANSPORT.has(i.type) && (f.ideaCity === 'all' || i.city === f.ideaCity) && (k === 'all' || (k === 'undecided' ? (!i.status || i.status === 'idea') : i.status === k))).length})</span>`).join('')}</div>
+    <div class="filters">${Object.entries(statusFilters).map(([k, v]) => `<span class="chip ${f.ideaStatus === k ? 'on' : ''}" data-filter-status="${k}">${v} (${S.items.filter((i) => inCity(i) && inStatus(i, k)).length})</span>`).join('')}</div>
+    ${emptyCities.length ? `<div class="warnings">No ideas yet for ${emptyCities.map(([, c]) => esc(c.name)).join(', ')}. Ask Claude to research them (see AGENTS.md).</div>` : ''}
     ${list.length ? list.map(ideaRow).join('') : '<div class="card empty muted">Nothing here.</div>'}`;
 }
 
@@ -408,11 +470,13 @@ function ideaRow(it) {
   const c = S.P.city(it.city);
   const st = it.status || 'idea';
   const when = it.status === 'yes' && it.date ? `${fmtDay(it.date)} ${it.start ? fmtHM(it.start) : ''}` : it.suggestedDate ? `best ${fmtDay(it.suggestedDate)}` : '';
-  return `<div class="idea" style="--c:${c.color}">
+  const pm = S.P.prefMatch(it);
+  return `<div class="idea ${pm.excluded ? 'excluded' : ''}" style="--c:${c.color}">
     <div class="thumb" data-detail="${esc(it.id)}">${media(it)}</div>
     <div style="min-width:0">
-      <h3 data-detail="${esc(it.id)}">${esc(it.title)}</h3>
+      <h3 data-detail="${esc(it.id)}">${pm.love.length ? '⭐ ' : ''}${esc(it.title)}</h3>
       <div class="small muted">${esc(c.name)} · ${fmtDur(it.duration || 60)}${priceText(it.price) ? ` · ${esc(priceText(it.price))}` : ''}${when ? ` · ${when}` : ''}</div>
+      ${pm.avoid.length || pm.diet ? `<div class="row wrap small" style="margin-top:4px">${prefBadges(it, false)}</div>` : ''}
       <div class="quick">
         <button class="yes ${st === 'yes' ? 'on' : ''}" data-quick-yes="${esc(it.id)}">✓ Yes</button>
         <button class="maybe ${st === 'maybe' ? 'on' : ''}" data-quick-maybe="${esc(it.id)}">?</button>
@@ -440,13 +504,13 @@ function openDetail(id) {
   const transport = TRANSPORT.has(it.type);
   const t = S.P.timing(it);
   const rows = [
-    ['Status', `<span class="status ${it.status}">${esc(it.status || 'idea')}</span>${it.updatedBy ? ` <span class="muted small">by ${esc(it.updatedBy)}</span>` : ''}`],
-    t && ['When', `${fmtDay(new Date(t.s).toLocaleDateString('en-CA', { timeZone: t.sTz }))} ${fmtTime(t.s, t.sTz)} ${tzAbbr(t.s, t.sTz)} → ${fmtTime(t.e, t.eTz)} ${tzAbbr(t.e, t.eTz)}`],
+    ['Status', `<span class="status ${it.status}">${esc(it.status || 'idea')}</span>${it.updatedBy ? ` <span class="muted small">by ${esc(it.updatedBy)}</span>` : it.addedBy ? ` <span class="muted small">added by ${esc(it.addedBy)}</span>` : ''}`],
+    t && ['When', `${fmtDay(localDate(t.s, t.sTz))} ${fmtTime(t.s, t.sTz)} ${tzAbbr(t.s, t.sTz)} → ${fmtTime(t.e, t.eTz)} ${tzAbbr(t.e, t.eTz)}`],
     transport && ['Route', `${esc(it.from?.name)} → ${esc(it.to?.name)}`],
     !transport && ['Duration', `${fmtDur(it.duration || 60)}${it.maxDuration ? ` (max ${fmtDur(it.maxDuration)})` : ''}`],
     it.suggestedStart && !transport && ['Best time', fmtHM(it.suggestedStart)],
     it.suggestedDate && ['Best day', fmtDay(it.suggestedDate)],
-    it.hours && ['Usual hours', `${it.hours.open}–${it.hours.close} (check before going)`],
+    it.hours && ['Usual hours', `${it.hours.open}–${it.hours.close}${it.hoursApprox ? ' (approx., check)' : ''}`],
     priceText(it.price) && ['Price', esc(priceText(it.price))],
     it.address && ['Address', `<a href="${mapsUrl(it)}" target="_blank" rel="noopener">${esc(it.address)}</a>`],
     it.url && ['Link', `<a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40))}</a>`],
@@ -456,7 +520,7 @@ function openDetail(id) {
   openSheet(`
     <div class="hero" style="--c:${c.color}">${media(it)}</div>
     ${sheetHead(esc(it.title))}
-    <div class="row wrap">${cityChip(it.city)}<span class="chip">${ICON[it.type] || '📌'} ${esc(it.type)}</span>${it.placeholder ? '<span class="chip ph">placeholder</span>' : ''}</div>
+    <div class="row wrap">${cityChip(it.city)}<span class="chip">${ICON[it.type] || '📌'} ${esc(it.type)}</span>${it.placeholder ? '<span class="chip ph">placeholder</span>' : ''}${prefBadges(it)}</div>
     <p>${esc(it.description || '')}</p>
     <dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
     ${transport ? '' : `<div class="grid2" style="margin-bottom:10px">
@@ -464,7 +528,7 @@ function openDetail(id) {
       <button class="btn" data-quick-maybe="${esc(id)}">? Maybe</button>
       <button class="btn" data-quick-no="${esc(id)}">✕ Not interested</button>
       ${it.status === 'yes' ? `<button class="btn" data-unschedule="${esc(id)}">Remove from day</button>` : '<span></span>'}</div>`}
-    <button class="btn block" data-edit="${esc(id)}">✏️ Edit details</button>`);
+    ${it.auto ? '<button class="btn block" data-route>🗺️ Change the route</button>' : `<button class="btn block" data-edit="${esc(id)}">✏️ Edit details</button>`}`);
 }
 
 function openTime(id, date) {
@@ -472,7 +536,7 @@ function openTime(id, date) {
   const days = S.P.daysInCity(it.city);
   const best = days.includes(date) ? date : it.date && days.includes(it.date) ? it.date : it.suggestedDate && days.includes(it.suggestedDate) ? it.suggestedDate
     : [...days].sort((a, b) => S.P.dayInfo(a).activity - S.P.dayInfo(b).activity)[0];
-  if (!best) { toast('No days in this city yet. Edit the stays in data/trip.json.'); return; }
+  if (!best) { toast(`${S.P.city(it.city).name} isn't on the route. Add it under Trip → Edit route.`); return; }
   const startFor = (d) => (it.date === d && it.start) || S.P.findSlot(it, d).start;
   openSheet(`${sheetHead(`🕐 ${esc(it.title)}`)}
     <div class="grid2">
@@ -485,7 +549,9 @@ function openTime(id, date) {
     const form = { date: $('[name=date]', sheet), start: $('[name=start]', sheet), duration: $('[name=duration]', sheet) };
     const check = () => {
       const d = form.date.value, trial = { ...it, date: d, start: form.start.value, duration: +form.duration.value, status: 'yes' };
-      const P = createPlanner(S.trip, S.items.map((x) => (x.id === id ? trial : x)));
+      const activities = S.items.filter((x) => !x.auto && !TRANSPORT.has(x.type)).map((x) => (x.id === id ? trial : x));
+      const transport = S.items.filter((x) => !x.auto && TRANSPORT.has(x.type));
+      const P = createPlanner({ trip: S.trip, cities: S.cities, routes: S.routes, route: route(), prefs: prefs(), activities, transport });
       const info = P.dayInfo(d);
       const mine = info.warnings.filter((w) => w.includes(it.title) || w.startsWith('Packed') || w.startsWith('Not much') || w.startsWith('Tight'));
       const fit = $('#fit', sheet);
@@ -514,7 +580,7 @@ function openEdit(id, defaults = {}) {
   const days = tripDays(S.trip);
   const types = [...ACTIVITY_TYPES, ...TRANSPORT];
   const isNew = !id;
-  const cities = Object.entries(S.trip.cities);
+  const cities = Object.entries(S.cities).filter(([, c]) => c.kind === 'city' || c.kind === 'home');
   const time = it.start || it.suggestedStart || '';
   openSheet(`${sheetHead(isNew ? '＋ New idea' : '✏️ Edit')}
     <label class="field"><span>Title *</span><input name="title" value="${esc(it.title)}" placeholder="e.g. Ice skating at the Old Town rink" required></label>
@@ -535,7 +601,7 @@ function openEdit(id, defaults = {}) {
         <label class="field"><span>From</span><input name="fromName" value="${esc(it.from?.name)}" placeholder="e.g. Kraków Główny"></label>
         <label class="field"><span>To</span><input name="toName" value="${esc(it.to?.name)}" placeholder="e.g. Wrocław Główny"></label>
       </div>
-      <p class="muted tiny">Flights across time zones: ask Claude to add them to data/transport.json so both time zones are right.</p>
+      <p class="muted tiny">Booked flights or trains between cities: ask Claude to add them to data/transport.json so they replace the route's placeholders.</p>
     </div>
     <label class="field activity-only"><span>Address</span><div class="row"><input name="address" value="${esc(it.address)}" placeholder="Street, city"><button class="btn small" type="button" data-geocode>📍 Find</button></div></label>
     <p class="muted tiny activity-only" id="geo">${hasLoc(it) ? `Location set (${it.lat.toFixed(4)}, ${it.lng.toFixed(4)}). Travel times will be estimated.` : 'Tap “Find” to look up the address so travel times can be estimated.'}</p>
@@ -543,6 +609,7 @@ function openEdit(id, defaults = {}) {
       <label class="field"><span>Price per person</span><input type="number" name="price" min="0" step="1" value="${it.price?.amount ?? ''}"></label>
       <label class="field"><span>Currency</span><select name="currency">${['PLN', 'USD', 'EUR'].map((c) => `<option ${c === (it.price?.currency || 'PLN') ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
     </div>
+    <label class="field food-only"><span>Vegan friendliness</span><select name="vegan"><option value="">Not sure</option>${['great', 'options', 'limited', 'none'].map((v) => `<option value="${v}" ${it.vegan === v ? 'selected' : ''}>${VEGAN_LABEL[v]}</option>`).join('')}</select></label>
     <label class="field"><span>Short description</span><textarea name="description">${esc(it.description)}</textarea></label>
     <label class="field"><span>Link (tickets, website)</span><input name="url" type="url" value="${esc(it.url)}" placeholder="https://"></label>
     <label class="field"><span>Image URL (optional)</span><input name="image" type="url" value="${esc(it.image)}" placeholder="https://…jpg"></label>
@@ -555,6 +622,7 @@ function openEdit(id, defaults = {}) {
       const tr = TRANSPORT.has(v('type'));
       $$('.transport-only', sheet).forEach((el) => (el.hidden = !tr));
       $$('.activity-only', sheet).forEach((el) => (el.hidden = tr));
+      $$('.food-only', sheet).forEach((el) => (el.hidden = v('type') !== 'food'));
     };
     $('[name=type]', sheet).onchange = syncType;
     syncType();
@@ -579,6 +647,7 @@ function openEdit(id, defaults = {}) {
         duration: +v('duration') || 60, maxDuration: +v('maxDuration') || null,
         description: v('description'), url: v('url') || null, image: v('image') || null, notes: v('notes') || null,
         price: v('price') === '' ? null : { amount: +v('price'), currency: v('currency'), per: 'person' },
+        vegan: v('type') === 'food' ? v('vegan') || null : null,
       };
       if (transport) {
         if (!it.from?.time) { patch.from = { ...(it.from || {}), name: v('fromName') }; patch.to = { ...(it.to || {}), name: v('toName') }; }
@@ -590,17 +659,16 @@ function openEdit(id, defaults = {}) {
       else Object.assign(patch, { date: null, start: null, suggestedStart: tm, suggestedDate: date || it.suggestedDate || null, status: it.status && !SCHEDULED.has(it.status) ? it.status : 'idea' });
       if (it.from?.time) { delete patch.date; delete patch.start; delete patch.status; delete patch.suggestedStart; delete patch.suggestedDate; }
       if (isNew) {
-        const nid = `${v('city').slice(0, 3)}-${v('title').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30)}-${Math.random().toString(36).slice(2, 6)}`;
-        const meta = { addedBy: whoAmI(), updatedBy: whoAmI(), updatedAt: new Date().toISOString() };
-        S.added.push({ id: nid, ...patch, ...meta });
+        const slug = v('title').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+        const nid = `${(S.P.city(v('city')).short || 'xxx').toLowerCase()}-${slug}-${Math.random().toString(36).slice(2, 6)}`;
+        S.added.push({ id: nid, ...patch, addedBy: whoAmI(), ...stamp() });
         persist();
         closeSheet();
         render();
         toast(`Added “${patch.title}”`);
       } else {
         closeSheet();
-        const undo = patchItem(id, patch);
-        toast('Saved', undo);
+        toast('Saved', patchItem(id, patch));
       }
     };
     $('[data-delete]', sheet)?.addEventListener('click', () => {
@@ -612,11 +680,174 @@ function openEdit(id, defaults = {}) {
   });
 }
 
+// Route editor: arrival/departure, stops with nights, day pins, regenerate.
+function openRoute() {
+  const draft = clone(route());
+  draft.pins ||= [];
+  let report = [];
+  const cityOpts = (sel) => routeCities().map(([id, c]) => `<option value="${id}" ${id === sel ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+  const days = tripDays(S.trip);
+
+  const draw = (sheet) => {
+    const itin = createPlanner({ trip: S.trip, cities: S.cities, routes: S.routes, route: draft, prefs: prefs(), activities: [], transport: S.baseTransport }).itin;
+    const rows = draft.stops.map((s, i) => {
+      const c = S.P.city(s.city);
+      const leg = i ? findRoute(S.routes, S.cities, draft.stops[i - 1].city, s.city) : null;
+      const n = c.nights || {};
+      return `${leg && leg.minutes ? `<div class="hop-row">${leg.mode === 'bus' ? '🚌' : '🚆'} ${fmtDur(leg.minutes)}${leg.estimated ? ' (estimated)' : ''}${leg.price ? ` · ~${leg.price.amount} ${leg.price.currency}` : ''}</div>` : ''}
+      <div class="stop-row" style="--c:${c.color}">
+        <div class="row between"><b>${i + 1}. ${esc(c.name)}</b>
+          <span class="row"><button class="btn small" data-r="up" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">↑</button><button class="btn small" data-r="down" data-i="${i}" ${i === draft.stops.length - 1 ? 'disabled' : ''} aria-label="Move down">↓</button><button class="btn small" data-r="del" data-i="${i}" aria-label="Remove">✕</button></span></div>
+        <div class="row wrap" style="margin-top:6px">
+          <span class="stepper"><button class="btn small" data-r="minus" data-i="${i}">−</button><b>${s.nights} night${s.nights === 1 ? '' : 's'}</b><button class="btn small" data-r="plus" data-i="${i}">＋</button></span>
+          <button class="btn small ${s.lockNights ? 'on' : ''}" data-r="lock" data-i="${i}" title="Keep this number of nights when regenerating">${s.lockNights ? '🔒 locked' : '🔓 flexible'}</button>
+          <span class="muted tiny">ideal ${n.ideal ?? '?'} (${n.min ?? '?'}–${n.max ?? '?'})</span>
+        </div>
+        ${(c.stayAreas || []).length ? `<label class="field" style="margin:8px 0 0"><span>Stay area</span><select data-area="${i}">${c.stayAreas.map((a) => `<option value="${a.id}" ${a.id === s.area ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></label>
+        <p class="muted tiny" style="margin:4px 0 0">${esc((c.stayAreas.find((a) => a.id === s.area) || c.stayAreas[0]).description)}</p>` : ''}
+      </div>`;
+    }).join('');
+    const pins = draft.pins.map((p, i) => `<div class="row" style="margin-bottom:6px">
+      <select data-pin-date="${i}">${days.filter((d) => d >= itin.arrDate && d <= itin.depDate).map((d) => `<option value="${d}" ${d === p.date ? 'selected' : ''}>${fmtDay(d)}</option>`).join('')}</select>
+      <select data-pin-city="${i}">${cityOpts(p.city)}</select>
+      <span>${itin.pinStatus[i]?.ok ? '✅' : '⚠️'}</span><button class="btn small" data-r="unpin" data-i="${i}">✕</button></div>`).join('');
+    const ok = itin.assigned === itin.nights;
+    sheet.innerHTML = `${sheetHead('🗺️ Route')}
+      <p class="muted small" style="margin-top:0">Lock down the cities first. Stays, trains and placeholder flights are generated from this. Booked transport in data/transport.json overrides them.</p>
+      <div class="grid2">
+        <label class="field"><span>✈️ Fly into</span><select data-arr>${cityOpts(draft.arrival.city)}</select></label>
+        <label class="field"><span>✈️ Fly home from</span><select data-dep>${cityOpts(draft.departure.city)}</select></label>
+      </div>
+      <div class="fit ${ok ? 'ok' : 'bad'}">${ok ? `✓ ${itin.nights} nights assigned` : `${itin.assigned} of ${itin.nights} nights assigned: ${itin.assigned < itin.nights ? `${itin.nights - itin.assigned} left` : `${itin.assigned - itin.nights} too many`}. Adjust, or tap Regenerate.`}
+        <div class="tiny">Land ${fmtDay(itin.arrDate)} · fly home ${fmtDay(itin.depDate)}</div></div>
+      ${rows}
+      <div class="row" style="margin:10px 0"><select data-add-city><option value="">＋ Add a city…</option>${routeCities().map(([id, c]) => {
+        const from = draft.stops.at(-2) || draft.stops.at(-1);
+        const leg = from ? findRoute(S.routes, S.cities, from.city, id) : null;
+        return `<option value="${id}">${esc(c.name)} · ideal ${c.nights?.ideal ?? '?'}n${leg && leg.minutes ? ` · ${fmtDur(leg.minutes)} from ${esc(S.P.city(from.city).name)}` : ''}</option>`;
+      }).join('')}</select></div>
+      <div class="section-title">📌 Pinned days</div>
+      <p class="muted tiny" style="margin-top:0">"We must be in Kraków all day on Nov 28." Regenerate keeps pinned days.</p>
+      ${pins}
+      <button class="btn small" data-r="pin">＋ Pin a day</button>
+      <label class="row small" style="margin:14px 0"><input type="checkbox" data-opt ${draft.optimizeOrder ? 'checked' : ''} style="width:auto"> Let Regenerate reorder the middle cities to save train time</label>
+      ${report.length ? `<div class="fit ok">${report.map((r) => `✨ ${esc(r)}`).join('<br>')}</div>` : ''}
+      <div class="grid2"><button class="btn" data-r="regen">✨ Regenerate</button><button class="btn primary" data-r="save">Save route</button></div>
+      ${S.routeLocal ? '<button class="btn block" style="margin-top:8px" data-r="revert">↩️ Discard this device’s route changes</button>' : ''}`;
+  };
+
+  openSheet('', (sheet) => {
+    draw(sheet);
+    sheet.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.matches('[data-arr]')) draft.arrival.city = t.value;
+      if (t.matches('[data-dep]')) draft.departure.city = t.value;
+      if (t.matches('[data-area]')) draft.stops[+t.dataset.area].area = t.value;
+      if (t.matches('[data-pin-date]')) draft.pins[+t.dataset.pinDate].date = t.value;
+      if (t.matches('[data-pin-city]')) draft.pins[+t.dataset.pinCity].city = t.value;
+      if (t.matches('[data-opt]')) draft.optimizeOrder = t.checked;
+      if (t.matches('[data-add-city]') && t.value) {
+        const c = S.cities[t.value];
+        const at = draft.stops.length > 1 ? draft.stops.length - 1 : draft.stops.length; // before the final stop
+        draft.stops.splice(at, 0, { city: t.value, nights: c.nights?.ideal || 2, area: c.stayAreas?.[0]?.id });
+      }
+      report = [];
+      draw(sheet);
+    });
+    sheet.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-r]');
+      if (!b) return;
+      const i = +b.dataset.i, s = draft.stops;
+      const act = b.dataset.r;
+      if (act === 'up') [s[i - 1], s[i]] = [s[i], s[i - 1]];
+      if (act === 'down') [s[i + 1], s[i]] = [s[i], s[i + 1]];
+      if (act === 'del') s.splice(i, 1);
+      if (act === 'minus') s[i].nights = Math.max(1, s[i].nights - 1);
+      if (act === 'plus') s[i].nights++;
+      if (act === 'lock') s[i].lockNights = !s[i].lockNights;
+      if (act === 'pin') { const it = S.P.itin; draft.pins.push({ date: addDays(it.arrDate, 1), city: s[0]?.city || draft.arrival.city }); }
+      if (act === 'unpin') draft.pins.splice(i, 1);
+      if (act === 'regen') {
+        const itin = createPlanner({ trip: S.trip, cities: S.cities, routes: S.routes, route: draft, prefs: prefs(), activities: [], transport: S.baseTransport }).itin;
+        const res = regenerateRoute({ route: draft, cities: S.cities, routes: S.routes, nights: itin.nights, arrDate: itin.arrDate });
+        draft.stops = res.stops;
+        report = res.report;
+        return draw(sheet);
+      }
+      if (act === 'save') { const undo = saveRoute(clone(draft)); closeSheet(); return toast('Route saved: stays and trains updated', undo); }
+      if (act === 'revert') { S.routeLocal = null; persist(); closeSheet(); render(); return toast('Back to the shared route'); }
+      report = [];
+      draw(sheet);
+    });
+  });
+}
+
+function openCities() {
+  const inRoute = new Set(route().stops.map((s) => s.city));
+  let from = route().arrival.city;
+  const draw = (sheet) => {
+    const list = routeCities().map(([id, c]) => ({ id, c, r: findRoute(S.routes, S.cities, from, id) })).sort((a, b) => a.r.minutes - b.r.minutes);
+    sheet.innerHTML = `${sheetHead('🏙️ Cities & travel times')}
+      <label class="field"><span>Travel times from</span><select data-from>${routeCities().map(([id, c]) => `<option value="${id}" ${id === from ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+      ${list.map(({ id, c, r }) => `<div class="city-card" style="--c:${c.color}">
+        <div class="row between"><b>${esc(c.name)} ${inRoute.has(id) ? '<span class="chip">on route</span>' : ''}</b>
+          <span class="small">${id === from ? '📍 here' : `${r.mode === 'bus' ? '🚌' : '🚆'} ${fmtDur(r.minutes)}${r.estimated ? '*' : ''}${r.price ? ` · ~${r.price.amount} ${r.price.currency}` : ''}`}</span></div>
+        <div class="small">${esc(c.description || '')}</div>
+        <div class="tiny muted" style="margin-top:4px">Ideal ${c.nights?.ideal ?? '?'} nights (${c.nights?.min ?? '?'}–${c.nights?.max ?? '?'}) · Stay: ${(c.stayAreas || []).map((a) => esc(a.name)).join(', ') || '–'}</div>
+      </div>`).join('')}
+      <p class="muted tiny">* Estimated from distance; no timetable data yet. Times and prices are typical, so check intercity.pl before booking.</p>`;
+  };
+  openSheet('', (sheet) => { draw(sheet); sheet.addEventListener('change', (e) => { if (e.target.matches('[data-from]')) { from = e.target.value; draw(sheet); } }); });
+}
+
+function openPrefs() {
+  const draft = clone(prefs());
+  draft.interests ||= []; draft.avoid ||= []; draft.travelers ||= []; draft.flexible ||= [];
+  draft.lodging ||= { wants: [] }; draft.lodging.wants ||= [];
+  const chips = (key, list) => `<div class="row wrap">${list.map((x, i) => `<span class="chip wrap">${esc(x)} <button class="x" data-del="${key}" data-i="${i}" aria-label="Remove">✕</button></span>`).join('')}</div>
+    <div class="row" style="margin-top:6px"><input data-new="${key}" placeholder="Add…"><button class="btn small" data-addto="${key}">Add</button></div>`;
+  const get = (key) => key.split('.').reduce((o, k) => o[k], draft);
+  const draw = (sheet) => {
+    sheet.innerHTML = `${sheetHead('💚 Our preferences')}
+      <p class="muted small" style="margin-top:0">Used to rank and filter ideas here, and by Claude when researching new ones.</p>
+      <div class="section-title">⭐ Interests (ranked higher)</div>${chips('interests', draft.interests)}
+      <div class="section-title">🚫 Avoid (hidden from suggestions)</div>${chips('avoid', draft.avoid)}
+      <div class="section-title">🙋 Travelers</div>
+      ${draft.travelers.map((t, i) => `<div class="stop-row"><div class="grid2"><label class="field"><span>Name</span><input data-tname="${i}" value="${esc(t.name)}"></label>
+        <label class="field"><span>Diet</span><select data-tdiet="${i}">${['', 'vegan', 'vegetarian', 'gluten-free', 'pescatarian'].map((d) => `<option value="${d}" ${(t.diet || [])[0] === d ? 'selected' : ''}>${d || 'Eats anything'}</option>`).join('')}</select></label></div>
+        <label class="field" style="margin:0"><span>Notes</span><input data-tnotes="${i}" value="${esc(t.notes)}"></label></div>`).join('')}
+      <div class="section-title">🤏 Flexible preferences (nice to have)</div>${chips('flexible', draft.flexible)}
+      <div class="section-title">🏠 Lodging wishes</div>${chips('lodging.wants', draft.lodging.wants)}
+      <label class="field" style="margin-top:8px"><span>Budget per night (USD)</span><input type="number" data-budget value="${draft.lodging.budgetPerNight?.amount ?? ''}"></label>
+      <button class="btn primary block" data-save-prefs>Save preferences</button>`;
+  };
+  openSheet('', (sheet) => {
+    draw(sheet);
+    sheet.addEventListener('click', (e) => {
+      const t = e.target;
+      if (t.dataset.del) { get(t.dataset.del).splice(+t.dataset.i, 1); draw(sheet); }
+      if (t.dataset.addto) { const inp = $(`[data-new="${t.dataset.addto}"]`, sheet); if (inp.value.trim()) get(t.dataset.addto).push(inp.value.trim()); draw(sheet); }
+      if ('savePrefs' in t.dataset) { const undo = savePrefs(clone(draft)); closeSheet(); toast('Preferences saved', undo); }
+    });
+    sheet.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset.new) { e.preventDefault(); $(`[data-addto="${e.target.dataset.new}"]`, sheet).click(); } });
+    sheet.addEventListener('change', (e) => {
+      const t = e.target, d = t.dataset;
+      if (d.tname) draft.travelers[+d.tname].name = t.value;
+      if (d.tdiet) draft.travelers[+d.tdiet].diet = t.value ? [t.value] : [];
+      if (d.tnotes) draft.travelers[+d.tnotes].notes = t.value;
+      if ('budget' in d) draft.lodging.budgetPerNight = t.value ? { amount: +t.value, currency: 'USD' } : null;
+    });
+  });
+}
+
 // ---------- sharing changes ----------
 
 const b64e = (s) => { let bin = ''; new TextEncoder().encode(s).forEach((b) => (bin += String.fromCharCode(b))); return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 const b64d = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0)));
-const exportData = () => ({ type: 'poland-planner-changes', version: 1, exportedBy: store.get(LS.name, 'Someone'), exportedAt: new Date().toISOString(), overrides: S.overrides, added: S.added });
+const exportData = () => ({
+  type: 'poland-planner-changes', version: 2, exportedBy: store.get(LS.name, 'Someone'), exportedAt: new Date().toISOString(),
+  overrides: S.overrides, added: S.added, route: S.routeLocal, preferences: S.prefsLocal,
+});
 
 function mergeChanges(data) {
   if (data?.type !== 'poland-planner-changes') throw new Error('That does not look like a planner export.');
@@ -627,6 +858,8 @@ function mergeChanges(data) {
     const i = S.added.findIndex((x) => x.id === a.id);
     if (i < 0) { S.added.push(a); n++; } else if (newer(a, S.added[i])) { S.added[i] = a; n++; }
   }
+  if (data.route && newer(data.route, S.routeLocal)) { S.routeLocal = data.route; n++; }
+  if (data.preferences && newer(data.preferences, S.prefsLocal)) { S.prefsLocal = data.preferences; n++; }
   persist();
   return n;
 }
@@ -643,9 +876,11 @@ function openMenu() {
   const n = changeCount();
   const name = store.get(LS.name, '');
   openSheet(`${sheetHead('Menu')}
-    <p class="small">You are <b>${esc(name || 'not set')}</b>. This device has <b>${n}</b> change${n === 1 ? '' : 's'} that aren’t saved to the shared plan yet.</p>
+    <p class="small">You are <b>${esc(name || 'not set')}</b>. This device has <b>${n}</b> change${n === 1 ? '' : 's'} that aren’t saved to the shared plan yet${S.routeLocal ? ' (including the route)' : ''}.</p>
     <p class="muted small">Picks are stored on this phone. To share them, send a link to your partner (it merges with their picks), or download the file and ask Claude to save it to the repo (see AGENTS.md).</p>
     <div class="menu-list">
+      <button data-route>🗺️ Edit route</button>
+      <button data-prefs>💚 Our preferences</button>
       <button data-menu="share">🔗 Share my picks as a link</button>
       <button data-menu="download">⬇️ Download changes (.json)</button>
       <button data-menu="copy">📋 Copy changes (paste to Claude)</button>
@@ -673,8 +908,8 @@ function openMenu() {
       if (act === 'import') file.click();
       if (act === 'name') { store.set(LS.name, ''); whoAmI(); closeSheet(); openMenu(); }
       if (act === 'images') { for (const k of Object.keys(imgCache)) delete imgCache[k]; store.set(LS.images, {}); closeSheet(); render(); }
-      if (act === 'reset' && confirm('Clear all picks and added ideas on this device? (Export first if you want to keep them.)')) {
-        S.overrides = {}; S.added = []; persist(); closeSheet(); render();
+      if (act === 'reset' && confirm('Clear all picks, added ideas, route and preference changes on this device? (Export first if you want to keep them.)')) {
+        Object.assign(S, { overrides: {}, added: [], routeLocal: null, prefsLocal: null }); persist(); closeSheet(); render();
       }
     });
   });
@@ -695,12 +930,15 @@ function toast(msg, undo) {
 // ---------- events ----------
 
 document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-view],[data-go],[data-go-day],[data-day-step],[data-add],[data-detail],[data-edit],[data-time],[data-unschedule],[data-quick-yes],[data-quick-no],[data-quick-maybe],[data-swipe],[data-filter-city],[data-filter-status],[data-close]');
+  const t = e.target.closest('[data-view],[data-go],[data-go-day],[data-day-step],[data-add],[data-detail],[data-edit],[data-time],[data-unschedule],[data-quick-yes],[data-quick-no],[data-quick-maybe],[data-swipe],[data-filter-city],[data-filter-status],[data-close],[data-route],[data-cities],[data-prefs]');
   if (!t) { if (e.target.id === 'sheet') closeSheet(); return; }
   const d = t.dataset;
   const inSheet = !!t.closest('#sheet');
-  const closeIf = () => { if (inSheet && !('edit' in d) && !('time' in d)) closeSheet(); };
+  const closeIf = () => { if (inSheet) closeSheet(); };
   if ('close' in d) return closeSheet();
+  if ('route' in d && !d.r) return openRoute();
+  if ('cities' in d) return openCities();
+  if ('prefs' in d) return openPrefs();
   if (d.view) return go(d.view);
   if (d.go) return go(d.go);
   if (d.goDay) return go('day', d.goDay);
@@ -745,13 +983,14 @@ $('#menuBtn').addEventListener('click', openMenu);
     if (m) {
       try {
         const data = JSON.parse(b64d(m[1]));
-        const count = Object.keys(data.overrides || {}).length + (data.added || []).length;
-        if (confirm(`Import ${count} pick${count === 1 ? '' : 's'} from ${data.exportedBy || 'someone'}? Newer changes win.`)) toast(`Imported ${mergeChanges(data)} changes`);
+        const count = Object.keys(data.overrides || {}).length + (data.added || []).length + (data.route ? 1 : 0) + (data.preferences ? 1 : 0);
+        if (confirm(`Import ${count} change${count === 1 ? '' : 's'} from ${data.exportedBy || 'someone'}? Newer changes win.`)) toast(`Imported ${mergeChanges(data)} changes`);
       } catch { alert('That share link looks broken.'); }
       history.replaceState(null, '', location.pathname);
     }
     render();
   } catch (err) {
+    console.error(err);
     $('#main').innerHTML = `<div class="card"><h2>Could not load the trip</h2><p class="muted">${esc(err.message)}</p><p class="small">If you opened index.html directly, run a local server instead: <code>python3 -m http.server</code></p></div>`;
   }
 })();

@@ -122,7 +122,8 @@
     "tags": [
       "cheap eats"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "vegan": "limited"
   },
   {
     "id": "krk-schindler",
@@ -265,7 +266,8 @@
     "tags": [
       "hands-on"
     ],
-    "addedBy": "claude"
+    "addedBy": "claude",
+    "vegan": "unknown"
   },
   {
     "id": "krk-underground",

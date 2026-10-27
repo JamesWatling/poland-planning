@@ -1,0 +1,14 @@
+{
+  "arrival": { "city": "warsaw", "flight": { "depart": "2026-11-20T16:00", "arrive": "2026-11-21T14:30" } },
+  "departure": { "city": "warsaw", "flight": { "depart": "2026-12-10T10:30", "arrive": "2026-12-10T17:30" } },
+  "optimizeOrder": true,
+  "defaultTravelTime": "10:30",
+  "stops": [
+    { "city": "warsaw", "nights": 4, "area": "srodmiescie" },
+    { "city": "krakow", "nights": 6, "area": "kazimierz" },
+    { "city": "wroclaw", "nights": 3, "area": "old-town" },
+    { "city": "gdansk", "nights": 4, "area": "main-town" },
+    { "city": "warsaw", "nights": 2, "area": "srodmiescie" }
+  ],
+  "pins": []
+}

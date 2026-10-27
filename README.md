@@ -1,48 +1,59 @@
 # Poland trip planner 🇵🇱
 
-**Thu Nov 19 – Thu Dec 10, 2026** · Warsaw → Kraków → Wrocław → Gdańsk → Warsaw
+**Thu Nov 19 – Thu Dec 10, 2026**
 
 👉 **Open it on your phone: https://jameswatling.github.io/poland-planning/**
 (Tip: Share → "Add to Home Screen" makes it feel like an app.)
 
 ## How to use it
 
-- **Trip**: a calendar of the whole trip, coloured by city, plus where we sleep and a timeline of every day. Tap a day to open it.
-- **Day**: the plan for one day, from Airbnb to Airbnb, with travel time between stops (walk / tram / Uber with rough fares),
-  total activity, travel and free time, cost, and warnings when a day is too packed, overlapping or at silly hours.
-- **Swipe**: Tinder for that day's ideas. **Right = yes** (it slots into the next free time that fits), **left = no**,
-  **up / 🕐 = yes, but at a different time or day**, **? = maybe**.
-- **Ideas**: every idea by city and status. Add your own with **＋ Add idea**.
+1. **Lock down the route first** (Trip → ✏️ Edit route). Pick the city you fly into and the one you fly home from, add cities
+   and nights, choose a neighbourhood to stay in, and **pin days** ("in Kraków all day Nov 28"). **✨ Regenerate** fits
+   the nights, keeps pins, and can reorder cities to save train time. Stays and trains are created from the route.
+2. **Set preferences** (💚 Our preferences): interests (ranked higher, ⭐), things to avoid (hidden), diets (🌱 vegan ratings on
+   food), flexible wishes, and what you want in a place to stay.
+3. **Swipe** through each day's ideas: **right = yes** (it slots into the next free time that fits), **left = no**,
+   **up / 🕐 = yes, but at another time or day**, **? = maybe**.
+4. **Day** shows the plan from your stay and back, with travel between stops (walk / tram / Uber with rough fares),
+   activity, travel and free time, cost, and warnings when it's packed, overlapping or at silly hours.
+5. **Ideas** lists everything by city and status. Add your own with **＋ Add idea**.
+6. **Cities & travel times** shows every supported city with recommended nights, where to stay, and train times.
 
 ### Your picks live on your phone until you share them
 
-Picks are saved in your phone's browser. To combine them:
+- **⋯ → Share my picks as a link**: send it to each other. Opening it merges the picks; the newer change wins.
+- **⋯ → Download / Copy changes**: give it to Claude to save into the shared plan for good.
 
-- **⋯ → Share my picks as a link**: send it to each other. Opening the link merges the picks; the newer change wins.
-- **⋯ → Download changes**: give the file to Claude (or paste it with ⋯ → Copy changes) to save it to the shared plan for good.
+## Claude does the research
 
-## Editing with Claude
+Open this repo in Claude Code on your computer and ask, for example:
 
-Open this repo in Claude Code (or claude.ai/code) and just ask, for example:
+| You say | What happens |
+|---|---|
+| "Research activities for Kraków and Gdańsk" | `research-city` runs a `city-researcher` subagent per city: web research → new ideas in `data/activities/` that match your interests and diet, skipping anything you rejected |
+| "Add Toruń for a night between Gdańsk and Warsaw" / "We must be in Kraków on Nov 28" | `plan-route` updates and regenerates the route |
+| "Check real train times" / "Find Airbnbs in Kazimierz" | `research-logistics` |
+| "Add the ice rink at Rynek" | `add-idea` |
+| "Plan a relaxed Saturday in Gdańsk" | `plan-day` |
+| "Here are my picks: {…}" | `apply-changes` |
 
-- "Add the Christmas market ice rink in Kraków as an idea for the evening"
-- "We booked the flight: LOT 2, leaves LAX 3:55 PM Nov 20, lands WAW 12:10 PM Nov 21"
-- "Our Kraków Airbnb is at Józefa 12"
-- "Plan a relaxed Saturday in Gdańsk"
-- "Here are my picks: { …pasted JSON… }"
-
-Instructions for agents are in [AGENTS.md](AGENTS.md) and [data/AGENTS.md](data/AGENTS.md). Skills in `.claude/skills/` cover the common jobs.
+The JSON files in `data/` are the database: git tracks every change, GitHub Pages hosts them for free, and rejected ideas
+stay marked `no` so research never suggests them again. Instructions for agents are in [AGENTS.md](AGENTS.md) and
+[data/AGENTS.md](data/AGENTS.md).
 
 ## Running locally
 
 ```bash
-python3 -m http.server 8000     # then open http://localhost:8000
-node scripts/validate.mjs       # check the data
+python3 -m http.server 8000          # then open http://localhost:8000
+node scripts/validate.mjs            # check the data
+node scripts/route.mjs               # print the route (add --regenerate to refit it)
+node scripts/brief.mjs [city]        # what's in the activity database
 ```
 
-Every push to `main` is validated and deployed to GitHub Pages by `.github/workflows/pages.yml`.
+Every push to `main` is validated and deployed by `.github/workflows/pages.yml`.
 
 ## Still to fill in
 
-Flights, trains and Airbnbs are **placeholders** (marked "placeholder" / "to book" on the site). The city order and number of nights
-are a first draft. Change `stays` in `data/trip.json`. Prices and opening hours are approximate.
+Flights, trains and Airbnbs are **placeholders** generated from the route (marked "to book" / "not booked" on the site).
+The cities and nights are a first draft. Prices, opening hours and train times are approximate. Poznań, Toruń, Zakopane,
+Łódź and Lublin are in the catalog but have no activities yet.
