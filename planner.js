@@ -76,6 +76,11 @@ export function estimateLeg(a, b, currency = 'PLN') {
   return { km: d, best, min: Math.round(opts[best]), opts, fare, currency };
 }
 
+/** Minutes to be at the station/airport before departure (international flights ~2.5–3h). */
+export const bufferMinutes = (it) => (it.type === 'flight' ? it.checkInMinutes ?? 150 : it.type === 'train' || it.type === 'bus' ? it.checkInMinutes ?? 15 : 0);
+/** When we must be at the start point of `it` (its start minus the check-in buffer). */
+export const readyBy = (it, t) => t.s - bufferMinutes(it) * 60000;
+
 // ---------- cities & routes ----------
 
 const FALLBACK_CITY = { name: '?', short: '?', tz: 'Europe/Warsaw', currency: 'PLN', color: '#888' };
@@ -334,16 +339,16 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
 
     // Travel legs between consecutive places: lodging -> items -> lodging.
     const legs = [];
-    const pushLeg = (from, to, prevEnd, nextStart, before) => {
+    const pushLeg = (from, to, prevEnd, nextStart, before, cur = currency) => {
       if (!hasLoc(from) || !hasLoc(to)) return;
-      const est = estimateLeg(from, to, currency);
+      const est = estimateLeg(from, to, cur);
       if (!est || est.km > 400) return;
       const gap = prevEnd != null && nextStart != null ? (nextStart - prevEnd) / 60000 : null;
       legs.push({ before, from, to, est, gap, tight: gap != null && gap < est.min });
     };
     let prevLoc = morning.lodging, prevEnd = null;
     scheduled.forEach((x, i) => {
-      if (x.t.s >= w0) pushLeg(prevLoc, x.it.from || locOf(x.it), prevEnd, x.t.s, i);
+      if (x.t.s >= w0) pushLeg(prevLoc, x.it.from || locOf(x.it), prevEnd, readyBy(x.it, x.t), i, city(x.it.city).currency); // priced where the ride happens
       prevLoc = x.it.to || locOf(x.it);
       prevEnd = x.t.e;
     });
@@ -352,10 +357,17 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
     // Totals
     const clip = (t) => Math.max(0, (Math.min(t.e, w1) - Math.max(t.s, w0)) / 60000);
     let activity = 0, transportMin = 0;
-    for (const x of scheduled) isTransport(x.it) ? (transportMin += clip(x.t)) : (activity += clip(x.t));
+    // Transport counts its check-in buffer too (waiting at the airport is not free time).
+    for (const x of scheduled) isTransport(x.it) ? (transportMin += clip({ s: readyBy(x.it, x.t), e: x.t.e })) : (activity += clip(x.t));
     const legMin = legs.reduce((n, l) => n + l.est.min, 0);
-    const awake = hmToMin(set.dayEnd) - hmToMin(set.dayStart);
-    const rest = Math.max(0, awake - activity - transportMin - legMin);
+    // Free time = waking hours minus everything else. Waking hours run from dayStart where we wake up to dayEnd
+    // where we go to sleep, so flying west makes a long day; nights spent on a plane don't count.
+    const transit = (s) => city(s.city).kind === 'transit';
+    const wakeTz = transit(morning) ? eTz : mTz, sleepTz = transit(evening) ? mTz : eTz;
+    const a0 = zonedToUtc(`${date}T${set.dayStart}`, wakeTz), a1 = zonedToUtc(`${date}T${set.dayEnd}`, sleepTz);
+    const inAwake = (s, e) => Math.max(0, (Math.min(e, a1) - Math.max(s, a0)) / 60000);
+    const busy = scheduled.reduce((n, x) => n + inAwake(isTransport(x.it) ? readyBy(x.it, x.t) : x.t.s, x.t.e), 0);
+    const rest = Math.max(0, (a1 - a0) / 60000 - busy - legMin);
 
     let usd = 0;
     for (const x of scheduled) {
@@ -370,6 +382,7 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
     scheduled.forEach((x, i) => {
       const prev = scheduled[i - 1];
       if (prev && x.t.s < prev.t.e) warnings.push(`“${x.it.title}” overlaps “${prev.it.title}”.`);
+      else if (prev && bufferMinutes(x.it) && readyBy(x.it, x.t) < prev.t.e) warnings.push(`“${prev.it.title}” runs into check-in time for “${x.it.title}” (be there ${bufferMinutes(x.it)} min early).`);
       if (x.t.s < w0) return;
       const sHM = localHM(x.t.s, x.t.sTz), eHM = localHM(x.t.e, x.t.eTz);
       const endsNextDay = localDate(x.t.e, x.t.eTz) !== localDate(x.t.s, x.t.sTz);
@@ -399,7 +412,7 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
     const loc = locOf(it);
     const busy = dayInfo(date).items
       .filter((x) => x.it.id !== it.id)
-      .map((x) => ({ s: x.t.s, e: x.t.e, a: x.it.from || locOf(x.it), b: x.it.to || locOf(x.it) }));
+      .map((x) => ({ s: readyBy(x.it, x.t), e: x.t.e, a: x.it.from || locOf(x.it), b: x.it.to || locOf(x.it) }));
     const travel = (p, q) => {
       if (!hasLoc(p) || !hasLoc(q)) return 15 * 60000;
       return Math.max(10, estimateLeg(p, q)?.min || 0) * 60000;

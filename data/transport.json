@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "id": "lo-22",
+    "role": "outbound",
+    "type": "flight",
+    "title": "LOT LO 22 LAX → WAW",
+    "city": "transit",
+    "status": "booked",
+    "description": "Direct LOT flight, about 11h35m in the air. Arrives the next day (+1d) at Warsaw Chopin.",
+    "checkInMinutes": 180,
+    "from": { "name": "Los Angeles Intl (LAX)", "address": "1 World Way, Los Angeles, CA 90045", "lat": 33.9416, "lng": -118.4085, "tz": "America/Los_Angeles", "time": "2026-11-20T16:10" },
+    "to": { "name": "Warsaw Chopin Airport (WAW)", "address": "Żwirki i Wigury 1, 00-906 Warszawa", "lat": 52.1657, "lng": 20.9671, "tz": "Europe/Warsaw", "time": "2026-11-21T12:45" },
+    "price": null
+  },
+  {
+    "id": "lo-23",
+    "role": "return",
+    "type": "flight",
+    "title": "LOT LO 23 WAW → LAX",
+    "city": "warsaw",
+    "status": "booked",
+    "description": "Direct LOT flight home, about 12h30m in the air. Lands the same calendar day in LA.",
+    "checkInMinutes": 150,
+    "from": { "name": "Warsaw Chopin Airport (WAW)", "address": "Żwirki i Wigury 1, 00-906 Warszawa", "lat": 52.1657, "lng": 20.9671, "tz": "Europe/Warsaw", "time": "2026-12-09T16:40" },
+    "to": { "name": "Los Angeles Intl (LAX)", "address": "1 World Way, Los Angeles, CA 90045", "lat": 33.9416, "lng": -118.4085, "tz": "America/Los_Angeles", "time": "2026-12-09T20:10" },
+    "price": null
+  }
+]

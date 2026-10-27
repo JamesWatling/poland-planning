@@ -1,6 +1,6 @@
 // Poland trip planner UI. Vanilla JS, no build step. Data lives in /data (see AGENTS.md).
 import {
-  TRANSPORT, ACTIVITY_TYPES, SCHEDULED, createPlanner, regenerateRoute, findRoute,
+  TRANSPORT, ACTIVITY_TYPES, SCHEDULED, createPlanner, regenerateRoute, findRoute, bufferMinutes,
   tripDays, addDays, daysBetween, localHM, localDate, zonedToUtc, hasLoc, estimateLeg,
 } from './planner.js';
 
@@ -325,7 +325,7 @@ function viewDay() {
 
 function endpoint(icon, label, lodging) {
   if (!lodging) return '';
-  return `<div class="endpoint"><span style="font-size:20px">${icon}</span><div class="grow"><div><b>${label}:</b> ${esc(lodging.name)} ${lodging.placeholder ? '<span class="chip ph">to book</span>' : ''}</div>
+  return `<div class="endpoint"><span style="font-size:20px">${icon}</span><div class="grow"><div><b>${label}:</b> ${esc(lodging.name)} ${lodging.placeholder ? `<span class="chip ph">${lodging.name === S.trip.home.name ? 'add address' : 'to book'}</span>` : ''}</div>
     ${lodging.address ? `<a class="small" href="${mapsUrl(lodging)}" target="_blank" rel="noopener">${esc(lodging.address)}</a>` : ''}</div></div>`;
 }
 
@@ -357,6 +357,7 @@ function itemCard(x, info) {
     <div>
       <h3>${ICON[it.type] || '📌'} ${esc(it.title)}</h3>
       <div class="small muted">${place}</div>
+      ${it.type === 'flight' && t.s >= info.w0 ? `<div class="small" style="margin-top:2px">🕑 Be at the airport by <b>${fmtTime(t.s - bufferMinutes(it) * 60000, t.sTz)}</b></div>` : ''}
       <div class="row wrap small" style="margin-top:4px">${it.placeholder ? `<span class="chip ph">${it.auto ? 'from route · not booked' : 'placeholder'}</span>` : ''}${priceText(it.price) ? `<span class="chip">💰 ${esc(priceText(it.price))}</span>` : ''}${prefBadges(it)}${it.updatedBy ? `<span class="chip">by ${esc(it.updatedBy)}</span>` : ''}</div>
       <div class="actions">${actions}</div>
     </div></div>`;

@@ -54,6 +54,7 @@ Every push to `main` is validated and deployed by `.github/workflows/pages.yml`.
 
 ## Still to fill in
 
-Flights, trains and Airbnbs are **placeholders** generated from the route (marked "to book" / "not booked" on the site).
+✈️ **Flights are booked:** LOT LO 22 LAX → WAW (Fri Nov 20, 4:10 PM → Sat Nov 21, 12:45 PM) and LO 23 WAW → LAX (Wed Dec 9, 4:40 PM → 8:10 PM).
+Trains and Airbnbs are still **placeholders** generated from the route (marked "to book" / "not booked" on the site).
 The cities and nights are a first draft. Prices, opening hours and train times are approximate. Poznań, Toruń, Zakopane,
 Łódź and Lublin are in the catalog but have no activities yet.
