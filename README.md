@@ -1,6 +1,6 @@
 # Poland & Prague trip planner 🇵🇱🇨🇿🐶
 
-**Nov 20 – Dec 9, 2026** · Warsaw · Gdańsk · Kraków · Zakopane · Prague · by train, with our small dog
+**Nov 19 – Dec 10, 2026** · St. George → LA → Warsaw · Gdańsk · Kraków · Zakopane · Prague → LA → St. George · by train, with our small dog
 
 👉 **Open it on your phone: https://jameswatling.github.io/poland-planning/**
 (Tip: Share → "Add to Home Screen" makes it feel like an app.)
@@ -21,8 +21,8 @@
 
 ### Saving your picks
 
-Changes show up instantly on your phone. To share them, tap **Save to shared plan** (the bar above the tabs).
-The first time, the phone asks for a GitHub token (steps are on screen: a fine-grained token for this repo with
+Changes show up instantly on your phone and **auto-save** about 30 seconds after you stop (or when you leave the page), batched into
+one save, not one per swipe. There's also a **Save now** button. The first time, the phone asks for a GitHub token (steps are on screen: a fine-grained token for this repo with
 *Contents: read & write*). The site then updates for both of you in about 1–2 minutes. If a save would break something,
 it's rejected and your changes stay on your phone with the reason.
 

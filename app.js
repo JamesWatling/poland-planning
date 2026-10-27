@@ -10,7 +10,7 @@ const ICON = {
 };
 const MODE = { walk: ['🚶', 'walk', 'walking'], transit: ['🚋', 'transit', 'transit'], uber: ['🚕', 'Uber/Bolt', 'driving'] };
 const VEGAN_LABEL = { great: '🌱 great vegan', options: '🌱 vegan options', limited: '🌱 limited vegan', none: '🚫 no vegan', unknown: '🌱 vegan?' };
-const LS = { overrides: 'pp.overrides', added: 'pp.added', route: 'pp.route', prefs: 'pp.prefs', pending: 'pp.pending', token: 'pp.ghToken', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
+const LS = { autosave: 'pp.autosave', overrides: 'pp.overrides', added: 'pp.added', route: 'pp.route', prefs: 'pp.prefs', pending: 'pp.pending', token: 'pp.ghToken', name: 'pp.name', ui: 'pp.ui', images: 'pp.images' };
 const DOG_LABEL = { yes: '🐶 dogs welcome', carrier: '🐶 in a carrier', no: '🐶 no dogs' };
 
 const $ = (sel, el = document) => el.querySelector(sel);
@@ -154,26 +154,38 @@ async function gh(path, opts = {}) {
   return r.json();
 }
 
+// Auto-save: batch everything into one save ~30 s after the last change, or right away when leaving the page.
+const AUTOSAVE_MS = 30000;
+const autosaveOn = () => store.get(LS.autosave, true) && !!ghToken();
+let autosaveTimer, autosaveAt = 0;
+function scheduleAutosave() {
+  clearTimeout(autosaveTimer);
+  if (!autosaveOn() || !changeCount()) return;
+  autosaveAt = Date.now() + AUTOSAVE_MS;
+  autosaveTimer = setTimeout(() => saveToShared({ auto: true }), AUTOSAVE_MS);
+}
+
 let saving = false;
-async function saveToShared() {
+async function saveToShared({ auto = false, leaving = false } = {}) {
+  clearTimeout(autosaveTimer); autosaveAt = 0;
   if (!changeCount() || saving) return;
-  if (!ghToken()) return openGitHubSetup(true);
-  saving = true; render();
+  if (!ghToken()) { if (!auto) openGitHubSetup(true); return; }
+  saving = true; if (!leaving) render();
   const data = exportData();
   const who = (data.exportedBy || 'someone').toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const file = `${new Date().toISOString().replace(/[:.]/g, '-')}-${who}.json`;
   const body = JSON.stringify({ message: `Planner: ${changeCount()} change(s) from ${data.exportedBy}`, content: b64std(JSON.stringify(data, null, 2)), branch: S.trip.github.branch });
   try {
-    try { await gh(`/contents/data/inbox/${file}`, { method: 'PUT', body }); }
+    try { await gh(`/contents/data/inbox/${file}`, { method: 'PUT', body, keepalive: leaving }); }
     catch (e) { if (e.status === 409) await gh(`/contents/data/inbox/${file}`, { method: 'PUT', body }); else throw e; } // branch moved: retry once
     S.pending.push({ file, sentAt: Date.now(), data });
     Object.assign(S, { overrides: {}, added: [], routeLocal: null, prefsLocal: null });
     persist();
-    toast('☁️ Saved. The shared plan updates in about 1–2 minutes.');
+    if (!auto) toast('☁️ Saved. The shared plan updates in about 1–2 minutes.');
     pollSync();
   } catch (e) {
-    alert(`Couldn't save: ${e.message}\n\nYour changes are still on this phone.`);
-  } finally { saving = false; render(); }
+    if (auto) toast(`Auto-save failed: ${e.message}`); else alert(`Couldn't save: ${e.message}\n\nYour changes are still on this phone.`);
+  } finally { saving = false; if (!leaving) render(); }
 }
 
 /** Drop pending batches the site now has; put failed ones back as local changes. Returns true if anything changed. */
@@ -246,11 +258,12 @@ function openGitHubSetup(thenSave = false) {
 function saveBar() {
   const n = changeCount();
   if (saving) return '<div class="savebar"><span>☁️ Saving…</span></div>';
+  if (n && autosaveAt) return `<div class="savebar"><span><b>${n}</b> change${n === 1 ? '' : 's'}, auto-saving shortly…</span><button class="btn small" data-save>Save now</button></div>`;
   if (n) return `<div class="savebar"><span><b>${n}</b> unsaved change${n === 1 ? '' : 's'} on this phone</span><button class="btn small primary" data-save>Save to shared plan</button></div>`;
   if (S.pending.length) return '<div class="savebar muted"><span>⏳ Saved. Updating the shared plan (1–2 min)…</span></div>';
   return '';
 }
-const restorer = (snap) => () => { const { o, a, r, p } = JSON.parse(snap); Object.assign(S, { overrides: o, added: a, routeLocal: r, prefsLocal: p }); persist(); render(); };
+const restorer = (snap) => () => { const { o, a, r, p } = JSON.parse(snap); Object.assign(S, { overrides: o, added: a, routeLocal: r, prefsLocal: p }); persist(); scheduleAutosave(); render(); };
 
 /** Apply a patch to an item; returns an undo function. */
 function patchItem(id, patch) {
@@ -259,11 +272,12 @@ function patchItem(id, patch) {
   if (i >= 0) S.added[i] = { ...S.added[i], ...patch, ...stamp() };
   else S.overrides[id] = { ...(S.overrides[id] || {}), ...patch, ...stamp() };
   persist();
+  scheduleAutosave();
   render();
   return undo;
 }
-function saveRoute(data) { const undo = restorer(snapshot()); S.routeLocal = { data, ...stamp() }; persist(); render(); return undo; }
-function savePrefs(data) { const undo = restorer(snapshot()); S.prefsLocal = { data, ...stamp() }; persist(); render(); return undo; }
+function saveRoute(data) { const undo = restorer(snapshot()); S.routeLocal = { data, ...stamp() }; persist(); scheduleAutosave(); render(); return undo; }
+function savePrefs(data) { const undo = restorer(snapshot()); S.prefsLocal = { data, ...stamp() }; persist(); scheduleAutosave(); render(); return undo; }
 
 function sayYes(id, date, start) {
   const it = S.byId[id];
@@ -719,7 +733,7 @@ function openEdit(id, defaults = {}) {
   const days = tripDays(S.trip);
   const types = [...ACTIVITY_TYPES, ...TRANSPORT];
   const isNew = !id;
-  const cities = Object.entries(S.cities).filter(([, c]) => c.kind === 'city' || c.kind === 'home');
+  const cities = Object.entries(S.cities).filter(([, c]) => ['city', 'home', 'gateway'].includes(c.kind));
   const time = it.start || it.suggestedStart || '';
   openSheet(`${sheetHead(isNew ? '＋ New idea' : '✏️ Edit')}
     <label class="field"><span>Title *</span><input name="title" value="${esc(it.title)}" placeholder="e.g. Ice skating at the Old Town rink" required></label>
@@ -804,6 +818,7 @@ function openEdit(id, defaults = {}) {
         const nid = `${(S.P.city(v('city')).short || 'xxx').toLowerCase()}-${slug}-${Math.random().toString(36).slice(2, 6)}`;
         S.added.push({ id: nid, ...patch, addedBy: whoAmI(), ...stamp() });
         persist();
+        scheduleAutosave();
         closeSheet();
         render();
         toast(`Added “${patch.title}”`);
@@ -1031,6 +1046,7 @@ function openMenu() {
     <div class="menu-list">
       <button data-save>☁️ Save to shared plan${n ? ` (${n})` : ''}</button>
       <button data-menu="github">🔑 GitHub connection ${ghToken() ? '✓' : '(not set up)'}</button>
+      <button data-menu="autosave">🔄 Auto-save: ${store.get(LS.autosave, true) ? 'on' : 'off'}</button>
       <button data-route>🗺️ Edit route</button>
       <button data-prefs>💚 Our preferences</button>
       <button data-menu="share">🔗 Share my picks as a link</button>
@@ -1059,6 +1075,7 @@ function openMenu() {
       if (act === 'copy') { await navigator.clipboard.writeText(`Please apply these Poland planner changes (save as data/inbox/changes.json and run node scripts/apply-changes.mjs):\n\n${json}`); toast('Copied'); }
       if (act === 'import') file.click();
       if (act === 'github') openGitHubSetup();
+      if (act === 'autosave') { store.set(LS.autosave, !store.get(LS.autosave, true)); closeSheet(); openMenu(); scheduleAutosave(); render(); }
       if (act === 'name') { store.set(LS.name, ''); whoAmI(); closeSheet(); openMenu(); }
       if (act === 'images') { for (const k of Object.keys(imgCache)) delete imgCache[k]; store.set(LS.images, {}); closeSheet(); render(); }
       if (act === 'reset' && confirm('Clear all picks, added ideas, route and preference changes on this device? (Export first if you want to keep them.)')) {
@@ -1129,6 +1146,7 @@ document.addEventListener('keydown', (e) => {
 $('#menuBtn').addEventListener('click', openMenu);
 // Coming back to the tab: pick up what the other person saved.
 document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'hidden' && autosaveOn() && changeCount()) return saveToShared({ auto: true, leaving: true });
   if (document.visibilityState !== 'visible' || Date.now() - (S.loadedAt || 0) < 60000 || !$('#sheet').hidden) return;
   try { await load(); render(); } catch { /* offline */ }
 });
@@ -1149,6 +1167,7 @@ document.addEventListener('visibilitychange', async () => {
     }
     render();
     pollSync();
+    scheduleAutosave(); // leftovers from last time
   } catch (err) {
     console.error(err);
     $('#main').innerHTML = `<div class="card"><h2>Could not load the trip</h2><p class="muted">${esc(err.message)}</p><p class="small">This usually means your browser kept an old copy of the app. Reload to get the latest.</p><button class="btn primary" onclick="location.reload()">Reload</button></div>`;

@@ -104,6 +104,11 @@ export function buildItinerary({ trip, cities, routes, route, transport }) {
   const city = (id) => cities[id] || { ...FALLBACK_CITY, name: id };
   const home = trip.home;
   const homeTz = city(home.city).tz;
+  // The gateway is where we fly from (LA), reached by car from home (St. George); without one, home is the airport city.
+  const gw = trip.gateway || { city: home.city, airport: home.airport };
+  const gwTz = city(gw.city).tz;
+  const airport = { ...gw.airport, tz: gwTz };
+  const homePlace = { name: home.name, address: home.address, lat: home.lat, lng: home.lng, tz: homeTz };
   const byRole = Object.fromEntries(transport.filter((t) => t.role).map((t) => [t.role, t]));
   const warnings = [];
   const placeOf = (id, kind) => ({ ...(city(id)[kind] || city(id).station || { name: city(id).name, lat: city(id).lat, lng: city(id).lng }), tz: city(id).tz });
@@ -112,18 +117,18 @@ export function buildItinerary({ trip, cities, routes, route, transport }) {
   const arrCity = route.arrival.city, depCity = route.departure.city;
   const outbound = byRole.outbound || {
     id: 'auto-outbound', role: 'outbound', type: 'flight', auto: true, placeholder: true, status: 'planned', city: 'transit',
-    title: `Flight ${home.airport.code} → ${city(arrCity).name}`,
+    title: `Flight ${airport.code} → ${city(arrCity).name}`,
     description: 'Placeholder times from data/route.json. Once booked, add the real flight to data/transport.json with "role": "outbound".',
-    from: { ...home.airport, tz: homeTz, time: route.arrival.flight.depart },
+    from: { ...airport, time: route.arrival.flight.depart },
     to: { ...placeOf(arrCity, 'airport'), time: route.arrival.flight.arrive },
     price: null,
   };
   const inbound = byRole.return || {
     id: 'auto-return', role: 'return', type: 'flight', auto: true, placeholder: true, status: 'planned', city: depCity,
-    title: `Flight ${city(depCity).name} → ${home.airport.code}`,
+    title: `Flight ${city(depCity).name} → ${airport.code}`,
     description: 'Placeholder times from data/route.json. Once booked, add the real flight to data/transport.json with "role": "return". Be at the airport about 2.5h before.',
     from: { ...placeOf(depCity, 'airport'), time: route.departure.flight.depart },
-    to: { ...home.airport, tz: homeTz, time: route.departure.flight.arrive },
+    to: { ...airport, time: route.departure.flight.arrive },
     price: null,
   };
   if (!byRole.outbound) derived.push(outbound);
@@ -136,7 +141,12 @@ export function buildItinerary({ trip, cities, routes, route, transport }) {
   // Stays (one per night)
   const stays = [];
   const homeLodging = { name: home.name, address: home.address, lat: home.lat, lng: home.lng, placeholder: home.placeholder };
-  if (trip.startDate < leaveHome) stays.push({ id: 'home-before', city: home.city, checkIn: trip.startDate, checkOut: leaveHome, lodging: homeLodging });
+  const driveOut = gw.toGateway, driveBack = gw.fromGateway;
+  const driveOutDate = driveOut ? driveOut.depart.slice(0, 10) : leaveHome;
+  const driveBackDate = driveBack ? driveBack.depart.slice(0, 10) : backHome;
+  const gwLodging = gw.lodging || { name: city(gw.city).name };
+  if (trip.startDate < driveOutDate) stays.push({ id: 'home-before', city: home.city, checkIn: trip.startDate, checkOut: driveOutDate, lodging: homeLodging });
+  if (driveOutDate < leaveHome) stays.push({ id: 'gateway-out', city: gw.city, checkIn: driveOutDate, checkOut: leaveHome, lodging: gwLodging });
   if (leaveHome < arrDate) stays.push({ id: 'transit-out', city: 'transit', checkIn: leaveHome, checkOut: arrDate, lodging: { name: 'Overnight flight' } });
   let d = arrDate;
   const stopStays = [];
@@ -159,7 +169,23 @@ export function buildItinerary({ trip, cities, routes, route, transport }) {
     warnings.push(`${daysBetween(d, depDate)} night(s) aren't assigned to a city yet.`);
   }
   if (depDate < backHome) stays.push({ id: 'transit-back', city: 'transit', checkIn: depDate, checkOut: backHome, lodging: { name: 'Overnight flight' } });
-  if (backHome <= trip.endDate) stays.push({ id: 'home-after', city: home.city, checkIn: backHome, checkOut: addDays(trip.endDate, 1), lodging: homeLodging });
+  if (backHome < driveBackDate) stays.push({ id: 'gateway-back', city: gw.city, checkIn: backHome, checkOut: driveBackDate, lodging: gwLodging });
+  if (driveBackDate <= trip.endDate) stays.push({ id: 'home-after', city: home.city, checkIn: driveBackDate, checkOut: addDays(trip.endDate, 1), lodging: homeLodging });
+
+  // Drives between home and the gateway
+  const drive = (role, leg, from, to, title) => {
+    if (!leg || byRole[role]) return;
+    const s = zonedToUtc(leg.depart, from.tz);
+    derived.push({
+      id: `auto-${role}`, role, type: leg.mode || 'car', auto: true, placeholder: true, status: 'planned', city: home.city, title,
+      description: `${leg.notes ? leg.notes + ' ' : ''}Placeholder: change the time in data/trip.json → gateway, or add a booked item with "role": "${role}".`,
+      from: { ...from, time: leg.depart }, to: { ...to, time: localISO(s + leg.minutes * 60000, to.tz) },
+      price: { amount: 70, currency: 'USD', per: 'group', approx: true },
+    });
+  };
+  const gwPlace = { ...gwLodging, tz: gwTz, name: gwLodging.name };
+  drive('to-gateway', driveOut, homePlace, gwPlace, `Drive ${city(home.city).name} → ${city(gw.city).name}`);
+  drive('from-gateway', driveBack, gwPlace, homePlace, `Drive ${city(gw.city).name} → ${city(home.city).name}`);
 
   // Ground transport between cities
   const travelAt = route.defaultTravelTime || '10:30';
@@ -202,7 +228,8 @@ export function buildItinerary({ trip, cities, routes, route, transport }) {
   });
 
   const assigned = route.stops.reduce((n, s) => n + s.nights, 0);
-  return { stays, transport: [...derived, ...transport], warnings, arrDate, depDate, nights, assigned, pinStatus, outbound, inbound };
+  const homeStart = { id: 'home-start', city: home.city, lodging: homeLodging }; // where day one begins
+  return { stays, homeStart, transport: [...derived, ...transport], warnings, arrDate, depDate, nights, assigned, pinStatus, outbound, inbound };
 }
 
 /**
@@ -324,7 +351,7 @@ export function createPlanner({ trip, cities, routes, route, prefs, activities, 
 
   function stayFor(date) {
     const evening = nightStay(date);
-    const morning = nightStay(addDays(date, -1)) || evening;
+    const morning = nightStay(addDays(date, -1)) || (date === trip.startDate ? itin.homeStart : evening);
     return { morning, evening: evening || morning };
   }
 

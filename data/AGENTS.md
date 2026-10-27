@@ -26,6 +26,23 @@ Keyed by city id (lowercase ASCII: `warsaw`, `gdansk`, `krakow`, `zakopane`, `pr
 
 To add a city: add the entry, create its `file` with `[]`, add `routes.json` connections to its neighbours, then research activities.
 
+## `trip.json`: home and gateway
+
+`home` is where the trip starts and ends (St. George, UT, `America/Denver`). `gateway` is the city we fly from, reached by car:
+
+```json
+"gateway": {
+  "city": "los-angeles",
+  "airport": { "code": "LAX", "name": "…", "address": "…", "lat": 33.9416, "lng": -118.4085 },
+  "lodging": { "name": "Dog-friendly hotel near LAX (TBD)", "lat": 33.9456, "lng": -118.3856, "placeholder": true },
+  "toGateway":   { "mode": "car", "depart": "2026-11-19T09:00", "minutes": 360 },   // depart in HOME time (Mountain)
+  "fromGateway": { "mode": "car", "depart": "2026-12-10T09:00", "minutes": 360 }    // depart in GATEWAY time (Pacific)
+}
+```
+
+The nights between the drive and the flight are spent at `gateway.lodging`. A booked item in `transport.json` with
+`role` `to-gateway` / `from-gateway` replaces a generated drive.
+
 ## `routes.json`: travel times between cities
 
 Symmetric (A→B also covers B→A). The fastest entry for a pair wins. Pairs that are missing are estimated from distance

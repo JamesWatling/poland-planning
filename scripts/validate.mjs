@@ -15,7 +15,8 @@ const { trip, cities, routes, route, prefs, transport, activities } = data;
 // trip.json
 if (!DATE.test(trip.startDate) || !DATE.test(trip.endDate) || trip.startDate > trip.endDate) errors.push('trip.json: startDate/endDate must be YYYY-MM-DD with start ≤ end');
 if (!cities[trip.home?.city]) errors.push('trip.json: home.city must be a key in cities.json');
-if (!trip.home?.airport?.code) errors.push('trip.json: home.airport needs code/name/lat/lng');
+if (!(trip.gateway?.airport || trip.home?.airport)?.code) errors.push('trip.json: gateway.airport (or home.airport) needs code/name/lat/lng');
+for (const k of ['toGateway', 'fromGateway']) { const g = trip.gateway?.[k]; if (g && (!LOCAL.test(g.depart || '') || !(g.minutes > 0))) errors.push(`trip.json gateway.${k}: needs depart "YYYY-MM-DDTHH:MM" (home time zone for toGateway, gateway time zone for fromGateway) and minutes`); }
 
 // cities.json
 for (const [id, c] of Object.entries(cities)) {

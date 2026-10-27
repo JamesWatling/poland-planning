@@ -250,15 +250,25 @@
       }
     ]
   },
-  "los-angeles": {
+  "st-george": {
     "kind": "home",
-    "name": "Los Angeles",
+    "name": "St. George, UT",
+    "short": "SG",
+    "tz": "America/Denver",
+    "currency": "USD",
+    "color": "#6b7280",
+    "lat": 37.0965,
+    "lng": -113.5684
+  },
+  "los-angeles": {
+    "kind": "gateway",
+    "name": "Los Angeles (LAX)",
     "short": "LA",
     "tz": "America/Los_Angeles",
     "currency": "USD",
-    "color": "#6b7280",
-    "lat": 34.0522,
-    "lng": -118.2437
+    "color": "#94a3b8",
+    "lat": 33.9456,
+    "lng": -118.3856
   },
   "transit": {
     "kind": "transit",

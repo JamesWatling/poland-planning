@@ -4,8 +4,8 @@ Instructions for AI agents (Claude Code, Codex, etc.) working in this repo. Huma
 
 ## What this is
 
-A small static website for planning a train trip through **Warsaw, Gdańsk, Kraków, Zakopane and Prague** (LOT flights LAX ⇄ WAW,
-**Nov 20 – Dec 9, 2026**) for James, his wife, and their small dog. Only use those five cities unless they ask.
+A small static website for planning a train trip through **Warsaw, Gdańsk, Kraków, Zakopane and Prague** (home is **St. George, Utah**; drive to LA, LOT flights LAX ⇄ WAW,
+**Nov 19 – Dec 10, 2026**) for James, his wife, and their small dog. Only use those five cities unless they ask.
 It's served by GitHub Pages: https://jameswatling.github.io/poland-planning/
 
 There's no build step and no framework: `index.html` + `styles.css` + `app.js` (UI) + `planner.js` (pure logic, shared with the scripts).
@@ -28,7 +28,7 @@ Commit and push to `main` when asked so it shows on the site (about 1 min).
 | 5 | `data/activities/<city>.json` | **The activity database**: every idea with its status: idea / maybe / yes / **no** | website (swipes, exported) and agents (research) |
 | 6 | `data/transport.json` | Only **booked** flights and trains. A `role` replaces the generated placeholder | agents, when the user books |
 | – | `data/inbox/`, `data/sync.json` | Changes saved from phones (see below) and the log of which were applied/rejected | the deploy workflow |
-| – | `data/trip.json` | Trip dates, home and airport, planning settings, exchange rates | rarely |
+| – | `data/trip.json` | Trip dates, **home** (St. George, UT; Mountain Time), **gateway** (LA: LAX, hotel, the drives there and back), planning settings, exchange rates | rarely |
 
 Stays (where we sleep each night) and the trains between cities are **generated** from `route.json` + `routes.json`.
 Don't hand-write them. Change the route, or add a booked item to `transport.json` with the matching `role`
@@ -73,8 +73,9 @@ python3 -m http.server 8000         # preview at http://localhost:8000
 ## How changes from the website get saved
 
 1. On a phone, swipes and edits are applied instantly and kept in that browser (localStorage).
-2. **Save to shared plan** (the bar above the tabs) commits them as one JSON file to `data/inbox/` via the GitHub API, using a
-   fine-grained token for this repo only (Contents: read & write), set once per phone under ⋯ → GitHub connection.
+2. **Auto-save** (on by default) batches every change into **one** commit about 30 s after the last change, or right away when the
+   page is hidden: one JSON file in `data/inbox/`, written via the GitHub API with a fine-grained token for this repo only
+   (Contents: read & write), set once per phone under ⋯ → GitHub connection. There's also a manual **Save** in the bar above the tabs.
 3. `.github/workflows/pages.yml` runs on that push: `scripts/apply-changes.mjs` merges each inbox file (oldest first) into the
    data files, **validates each batch on its own** (rolling back and moving it to `data/inbox/failed/` if it would break the data),
    records the result in `data/sync.json`, commits, and redeploys. Runs are serialized, so two people saving at once is fine.

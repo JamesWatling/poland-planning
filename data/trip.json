@@ -3,19 +3,12 @@
   "startDate": "2026-11-19",
   "endDate": "2026-12-10",
   "home": {
-    "city": "los-angeles",
+    "city": "st-george",
     "name": "Home",
-    "address": "Los Angeles (set your home address)",
-    "lat": 34.0522,
-    "lng": -118.2437,
-    "placeholder": true,
-    "airport": {
-      "code": "LAX",
-      "name": "Los Angeles Intl (LAX)",
-      "address": "1 World Way, Los Angeles, CA 90045",
-      "lat": 33.9416,
-      "lng": -118.4085
-    }
+    "address": "St. George, UT (set your address)",
+    "lat": 37.0965,
+    "lng": -113.5684,
+    "placeholder": true
   },
   "settings": {
     "dayStart": "08:00",
@@ -35,5 +28,34 @@
     "owner": "JamesWatling",
     "repo": "poland-planning",
     "branch": "main"
+  },
+  "gateway": {
+    "city": "los-angeles",
+    "airport": {
+      "code": "LAX",
+      "name": "Los Angeles Intl (LAX)",
+      "address": "1 World Way, Los Angeles, CA 90045",
+      "lat": 33.9416,
+      "lng": -118.4085
+    },
+    "lodging": {
+      "name": "Dog-friendly hotel near LAX (TBD)",
+      "address": "Near LAX, Los Angeles (to book)",
+      "lat": 33.9456,
+      "lng": -118.3856,
+      "placeholder": true
+    },
+    "toGateway": {
+      "mode": "car",
+      "depart": "2026-11-19T09:00",
+      "minutes": 360,
+      "notes": "About 390 miles via I-15. Utah is on Mountain Time, 1h ahead of LA."
+    },
+    "fromGateway": {
+      "mode": "car",
+      "depart": "2026-12-10T09:00",
+      "minutes": 360,
+      "notes": "About 390 miles via I-15, after a night near LAX."
+    }
   }
 }
