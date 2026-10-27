@@ -2,7 +2,7 @@
 import {
   TRANSPORT, ACTIVITY_TYPES, SCHEDULED, createPlanner, regenerateRoute, findRoute, bufferMinutes,
   tripDays, addDays, daysBetween, localHM, localDate, zonedToUtc, hasLoc, estimateLeg,
-} from './planner.js';
+} from './planner.js?v=__VERSION__'; // __VERSION__ is stamped on deploy so phones never mix old code with new data
 
 const ICON = {
   sight: '🏛️', museum: '🖼️', food: '🍽️', tour: '🧭', daytrip: '🚌', nature: '🌳', event: '🎄', nightlife: '🎷', shopping: '🛍️', rest: '😴', other: '📌',
@@ -1151,6 +1151,6 @@ document.addEventListener('visibilitychange', async () => {
     pollSync();
   } catch (err) {
     console.error(err);
-    $('#main').innerHTML = `<div class="card"><h2>Could not load the trip</h2><p class="muted">${esc(err.message)}</p><p class="small">If you opened index.html directly, run a local server instead: <code>python3 -m http.server</code></p></div>`;
+    $('#main').innerHTML = `<div class="card"><h2>Could not load the trip</h2><p class="muted">${esc(err.message)}</p><p class="small">This usually means your browser kept an old copy of the app. Reload to get the latest.</p><button class="btn primary" onclick="location.reload()">Reload</button></div>`;
   }
 })();
