@@ -1,0 +1,395 @@
+[
+  {
+    "id": "krk-rynek",
+    "title": "Main Market Square & Cloth Hall",
+    "type": "sight",
+    "city": "krakow",
+    "status": "idea",
+    "description": "One of Europe's largest medieval squares. Browse the Renaissance Cloth Hall stalls and soak up the atmosphere.",
+    "address": "Rynek Główny 1/3, 31-042 Kraków",
+    "lat": 50.0617,
+    "lng": 19.9373,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Main_Square,_Kraków",
+    "tags": [
+      "walk"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-st-marys",
+    "title": "St. Mary's Basilica",
+    "type": "sight",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A Gothic church with the stunning Veit Stoss altarpiece. A bugle call (hejnał) plays from the tower every hour.",
+    "address": "plac Mariacki 5, 31-042 Kraków",
+    "lat": 50.0616,
+    "lng": 19.9394,
+    "duration": 45,
+    "maxDuration": 75,
+    "suggestedStart": "11:30",
+    "price": {
+      "amount": 15,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "St._Mary's_Basilica,_Kraków",
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-wawel",
+    "title": "Wawel Royal Castle & Cathedral",
+    "type": "museum",
+    "city": "krakow",
+    "status": "idea",
+    "description": "The hilltop castle and cathedral where Polish kings were crowned and buried. Choose your exhibitions; they are ticketed separately.",
+    "address": "Wawel 5, 31-001 Kraków",
+    "lat": 50.054,
+    "lng": 19.9354,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 80,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "09:30",
+      "close": "17:00"
+    },
+    "wiki": "Wawel_Castle",
+    "addedBy": "claude",
+    "hoursApprox": true
+  },
+  {
+    "id": "krk-kazimierz",
+    "title": "Kazimierz Jewish Quarter walk",
+    "type": "tour",
+    "city": "krakow",
+    "status": "idea",
+    "description": "Synagogues, Szeroka Street and cafés in the historic Jewish district. A guided walk adds a lot of context.",
+    "address": "Szeroka, 31-053 Kraków",
+    "lat": 50.0518,
+    "lng": 19.9486,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Kazimierz",
+    "tags": [
+      "walk",
+      "history"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-zapiekanka",
+    "title": "Zapiekanka at Plac Nowy",
+    "type": "food",
+    "city": "krakow",
+    "status": "idea",
+    "description": "The famous open-faced toasted baguette from the round market hall hatches. A classic evening snack.",
+    "address": "Plac Nowy, 31-056 Kraków",
+    "lat": 50.0514,
+    "lng": 19.9447,
+    "duration": 30,
+    "maxDuration": 45,
+    "suggestedStart": "20:00",
+    "price": {
+      "amount": 20,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Zapiekanka",
+    "tags": [
+      "cheap eats"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-schindler",
+    "title": "Oskar Schindler's Enamel Factory",
+    "type": "museum",
+    "city": "krakow",
+    "status": "idea",
+    "description": "An excellent museum about Kraków under Nazi occupation, set in Schindler's former factory. Book timed tickets well ahead.",
+    "address": "Lipowa 4, 30-702 Kraków",
+    "lat": 50.0475,
+    "lng": 19.9614,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "18:00"
+    },
+    "wiki": "Oskar_Schindler's_Enamel_Factory",
+    "addedBy": "claude",
+    "hoursApprox": true
+  },
+  {
+    "id": "krk-wieliczka",
+    "title": "Wieliczka Salt Mine",
+    "type": "daytrip",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A UNESCO mine with chapels and chandeliers carved entirely from salt. The guided tour takes about 3h and involves lots of stairs. About 30 min from Kraków.",
+    "address": "Daniłowicza 10, 32-020 Wieliczka",
+    "lat": 49.9833,
+    "lng": 20.055,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "suggestedDate": "2026-11-28",
+    "price": {
+      "amount": 160,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Wieliczka_Salt_Mine",
+    "tags": [
+      "UNESCO",
+      "half day"
+    ],
+    "addedBy": "claude",
+    "hours": {
+      "open": "09:00",
+      "close": "17:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "krk-auschwitz",
+    "title": "Auschwitz-Birkenau Memorial (guided)",
+    "type": "daytrip",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A sobering and important visit. Guided tours of both camps take about 3.5h, plus roughly 1h15 each way. Book entry passes far in advance.",
+    "address": "Więźniów Oświęcimia 20, 32-603 Oświęcim",
+    "lat": 50.027,
+    "lng": 19.2036,
+    "duration": 210,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "suggestedDate": "2026-11-27",
+    "price": {
+      "amount": 130,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Auschwitz_concentration_camp",
+    "tags": [
+      "history",
+      "full day"
+    ],
+    "addedBy": "claude",
+    "hours": {
+      "open": "08:00",
+      "close": "15:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "krk-zakopane",
+    "title": "Zakopane mountain day trip",
+    "type": "daytrip",
+    "city": "krakow",
+    "status": "idea",
+    "description": "The winter capital in the Tatras: Krupówki Street, the Gubałówka funicular and oscypek smoked cheese. About 2h each way by bus or car.",
+    "address": "Krupówki, 34-500 Zakopane",
+    "lat": 49.2969,
+    "lng": 19.9507,
+    "duration": 360,
+    "maxDuration": 480,
+    "suggestedStart": "10:30",
+    "suggestedDate": "2026-11-29",
+    "price": {
+      "amount": 80,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Zakopane",
+    "tags": [
+      "mountains",
+      "full day"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-pierogi",
+    "title": "Pierogi cooking class",
+    "type": "food",
+    "city": "krakow",
+    "status": "idea",
+    "description": "Learn to make pierogi from scratch, then eat them. Usually includes vodka or nalewka tasting. Book ahead.",
+    "address": "Kazimierz, Kraków (venue varies)",
+    "lat": 50.0525,
+    "lng": 19.946,
+    "duration": 180,
+    "maxDuration": 210,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 250,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Pierogi",
+    "tags": [
+      "hands-on"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-underground",
+    "title": "Rynek Underground museum",
+    "type": "museum",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A high-tech museum beneath the Main Square showing medieval Kraków's excavated streets.",
+    "address": "Rynek Główny 1, 31-042 Kraków",
+    "lat": 50.0619,
+    "lng": 19.937,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "15:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Rynek_Underground",
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "20:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "krk-xmas",
+    "title": "Kraków Christmas Market",
+    "type": "event",
+    "city": "krakow",
+    "status": "idea",
+    "description": "Wooden stalls on the Main Square selling crafts, grilled oscypek and grzaniec. Usually opens in late November: check dates.",
+    "address": "Rynek Główny, 31-042 Kraków",
+    "lat": 50.0612,
+    "lng": 19.9368,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "christmas",
+      "evening"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-nowa-huta",
+    "title": "Nowa Huta communist-era tour",
+    "type": "tour",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A planned socialist-realist district, best seen on a tour (some are in a Trabant). A fascinating contrast to the Old Town.",
+    "address": "Plac Centralny im. Ronalda Reagana, 31-900 Kraków",
+    "lat": 50.0718,
+    "lng": 20.0377,
+    "duration": 150,
+    "maxDuration": 180,
+    "suggestedStart": "13:00",
+    "price": {
+      "amount": 150,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Nowa_Huta",
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-kosciuszko",
+    "title": "Kościuszko Mound at sunset",
+    "type": "nature",
+    "city": "krakow",
+    "status": "idea",
+    "description": "A man-made hill with a panoramic view over Kraków. On a clear day you can see the Tatras. Sunset is about 3:40 PM.",
+    "address": "aleja Waszyngtona 1, 30-204 Kraków",
+    "lat": 50.0549,
+    "lng": 19.8933,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "14:30",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Kościuszko_Mound",
+    "tags": [
+      "views",
+      "sunset"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "krk-jazz",
+    "title": "Live jazz in an Old Town cellar bar",
+    "type": "nightlife",
+    "city": "krakow",
+    "status": "idea",
+    "description": "Kraków has a big jazz scene in brick-vaulted cellars off the Main Square. Relaxed and atmospheric.",
+    "address": "Old Town, Kraków (e.g. Harris Piano Jazz Bar)",
+    "lat": 50.0614,
+    "lng": 19.9375,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "20:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "music",
+      "evening"
+    ],
+    "addedBy": "claude"
+  }
+]

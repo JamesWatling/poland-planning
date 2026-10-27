@@ -1,0 +1,305 @@
+[
+  {
+    "id": "gdn-long-market",
+    "title": "Long Market, Neptune Fountain & Artus Court",
+    "type": "sight",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "The grand Royal Route of tall merchant houses, the Neptune Fountain and the ornate Artus Court.",
+    "address": "Długi Targ, 80-828 Gdańsk",
+    "lat": 54.3486,
+    "lng": 18.6533,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Long_Market",
+    "tags": [
+      "walk"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-solidarity",
+    "title": "European Solidarity Centre",
+    "type": "museum",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "A powerful museum on the Solidarity movement that began at the Gdańsk shipyard.",
+    "address": "plac Solidarności 1, 80-863 Gdańsk",
+    "lat": 54.361,
+    "lng": 18.649,
+    "duration": 150,
+    "maxDuration": 180,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 35,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "European_Solidarity_Centre",
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "17:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "gdn-ww2",
+    "title": "Museum of the Second World War",
+    "type": "museum",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "A vast, superb museum. Allow at least 3h and book timed tickets.",
+    "address": "plac Władysława Bartoszewskiego 1, 80-862 Gdańsk",
+    "lat": 54.3561,
+    "lng": 18.6603,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 30,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Museum_of_the_Second_World_War",
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "17:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "gdn-st-marys",
+    "title": "St. Mary's Church & tower climb",
+    "type": "sight",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "One of the largest brick churches in the world. Climb the 400+ steps for the view.",
+    "address": "Podkramarska 5, 80-834 Gdańsk",
+    "lat": 54.3497,
+    "lng": 18.6533,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "13:00",
+    "price": {
+      "amount": 20,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "St._Mary's_Church,_Gdańsk",
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-mariacka",
+    "title": "Mariacka Street & amber shopping",
+    "type": "shopping",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "The prettiest street in Gdańsk, with stone terraces, gargoyles and amber jewellery shops.",
+    "address": "Mariacka, 80-833 Gdańsk",
+    "lat": 54.3496,
+    "lng": 18.6555,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "walk",
+      "shopping"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-crane",
+    "title": "Gdańsk Crane & waterfront",
+    "type": "sight",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "A medieval port crane on the Motława river (part of the Maritime Museum), with a riverside stroll.",
+    "address": "Szeroka 67/68, 80-835 Gdańsk",
+    "lat": 54.3507,
+    "lng": 18.6582,
+    "duration": 45,
+    "maxDuration": 75,
+    "suggestedStart": "15:00",
+    "price": {
+      "amount": 20,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Gdańsk_Crane",
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-xmas",
+    "title": "Gdańsk Christmas Market",
+    "type": "event",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "A festive market on Targ Węglowy with a big Ferris wheel and stalls. Usually opens late November.",
+    "address": "Targ Węglowy, 80-836 Gdańsk",
+    "lat": 54.35,
+    "lng": 18.6475,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "christmas",
+      "evening"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-westerplatte",
+    "title": "Westerplatte",
+    "type": "sight",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "The peninsula where WWII began on 1 September 1939, with a monument and ruins. Best by bus or Uber.",
+    "address": "Sucharskiego 1, 80-601 Gdańsk",
+    "lat": 54.4068,
+    "lng": 18.6705,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Westerplatte",
+    "tags": [
+      "history"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-sopot",
+    "title": "Sopot pier & Monte Cassino Street",
+    "type": "nature",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "A seaside resort 20 min away by SKM train. Walk the long wooden pier and the Crooked House street.",
+    "address": "Plac Zdrojowy 2, 81-723 Sopot",
+    "lat": 54.4469,
+    "lng": 18.5701,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "12:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Sopot_Pier",
+    "tags": [
+      "seaside",
+      "half day"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-malbork",
+    "title": "Malbork Castle day trip",
+    "type": "daytrip",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "The world's largest brick castle, built by the Teutonic Knights. About 40 min by train, and the audio-guide visit takes about 3.5h.",
+    "address": "Starościńska 1, 82-200 Malbork",
+    "lat": 54.0399,
+    "lng": 19.028,
+    "duration": 240,
+    "maxDuration": 300,
+    "suggestedStart": "10:30",
+    "suggestedDate": "2026-12-06",
+    "price": {
+      "amount": 70,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Malbork_Castle",
+    "tags": [
+      "UNESCO",
+      "full day"
+    ],
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "15:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "gdn-oliwa",
+    "title": "Oliwa Cathedral organ recital",
+    "type": "event",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "Short demonstrations of a famous rococo organ with moving angels, held most days.",
+    "address": "Biskupa Edmunda Nowickiego 5, 80-330 Gdańsk",
+    "lat": 54.4102,
+    "lng": 18.5604,
+    "duration": 45,
+    "maxDuration": 60,
+    "suggestedStart": "12:00",
+    "price": {
+      "amount": 10,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Oliwa_Cathedral",
+    "tags": [
+      "music"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "gdn-goldwasser",
+    "title": "Riverside dinner & Goldwasser liqueur",
+    "type": "food",
+    "city": "gdansk",
+    "status": "idea",
+    "description": "Seafood or Polish dinner along the Motława. Try Goldwasser, the local liqueur with gold flakes.",
+    "address": "Długie Pobrzeże, 80-888 Gdańsk",
+    "lat": 54.349,
+    "lng": 18.658,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 150,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Danziger_Goldwasser",
+    "addedBy": "claude"
+  }
+]

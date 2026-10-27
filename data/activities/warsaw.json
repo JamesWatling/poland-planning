@@ -1,0 +1,447 @@
+[
+  {
+    "id": "waw-first-night",
+    "title": "Easy first dinner near the Airbnb",
+    "type": "food",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "Jet-lag friendly: a relaxed Polish dinner (pierogi, żurek soup) close to where you are staying, then an early night.",
+    "address": "Near the Warsaw Airbnb",
+    "lat": 52.2297,
+    "lng": 21.0122,
+    "duration": 75,
+    "maxDuration": 120,
+    "suggestedStart": "18:30",
+    "suggestedDate": "2026-11-21",
+    "price": {
+      "amount": 80,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "jet lag",
+      "easy"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-old-town",
+    "title": "Old Town & Castle Square walk",
+    "type": "sight",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "UNESCO-listed Old Town, rebuilt brick by brick after WWII. Wander the Market Square, the Barbican and the city walls.",
+    "address": "Rynek Starego Miasta, 00-272 Warszawa",
+    "lat": 52.2497,
+    "lng": 21.0122,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Warsaw_Old_Town",
+    "tags": [
+      "walk",
+      "UNESCO"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-royal-castle",
+    "title": "Royal Castle",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "The reconstructed residence of Polish kings: grand state rooms, a throne room and two Rembrandts.",
+    "address": "plac Zamkowy 4, 00-277 Warszawa",
+    "lat": 52.2479,
+    "lng": 21.0153,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 50,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "18:00"
+    },
+    "wiki": "Royal_Castle,_Warsaw",
+    "addedBy": "claude",
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-polin",
+    "title": "POLIN Museum of the History of Polish Jews",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "An award-winning museum covering 1,000 years of Jewish life in Poland. Its painted wooden synagogue ceiling is a highlight.",
+    "address": "Mordechaja Anielewicza 6, 00-157 Warszawa",
+    "lat": 52.2494,
+    "lng": 20.993,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 45,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "18:00"
+    },
+    "wiki": "POLIN_Museum_of_the_History_of_Polish_Jews",
+    "addedBy": "claude",
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-uprising",
+    "title": "Warsaw Rising Museum",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "An immersive museum about the 1944 uprising, with a replica sewer and a 3D film of the ruined city. Moving and essential.",
+    "address": "Grzybowska 79, 00-844 Warszawa",
+    "lat": 52.2323,
+    "lng": 20.981,
+    "duration": 150,
+    "maxDuration": 210,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 35,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "hours": {
+      "open": "10:00",
+      "close": "18:00"
+    },
+    "wiki": "Warsaw_Rising_Museum",
+    "notes": "Usually closed Tuesdays: check.",
+    "addedBy": "claude",
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-pkin",
+    "title": "Palace of Culture & Science viewing terrace",
+    "type": "sight",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A Stalin-era skyscraper with a 30th-floor terrace. Go around sunset (about 3:30 PM in late November) to watch the city lights come on.",
+    "address": "plac Defilad 1, 00-901 Warszawa",
+    "lat": 52.2318,
+    "lng": 21.006,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "15:15",
+    "price": {
+      "amount": 35,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Palace_of_Culture_and_Science",
+    "tags": [
+      "views",
+      "sunset"
+    ],
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "20:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-lazienki",
+    "title": "Łazienki Park & Palace on the Isle",
+    "type": "nature",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "Warsaw's most beautiful park, with a lakeside palace, peacocks and red squirrels. Lovely on a crisp morning.",
+    "address": "Agrykola 1, 00-460 Warszawa",
+    "lat": 52.215,
+    "lng": 21.0352,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "11:00",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Royal_Baths_Park",
+    "tags": [
+      "park",
+      "walk"
+    ],
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "16:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-wilanow",
+    "title": "Wilanów Palace",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A baroque royal summer palace (the \"Polish Versailles\"), with a seasonal winter light garden after dark.",
+    "address": "Stanisława Kostki Potockiego 10/16, 02-958 Warszawa",
+    "lat": 52.1652,
+    "lng": 21.0905,
+    "duration": 150,
+    "maxDuration": 210,
+    "suggestedStart": "10:30",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Wilanów_Palace",
+    "addedBy": "claude",
+    "hours": {
+      "open": "10:00",
+      "close": "16:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-copernicus",
+    "title": "Copernicus Science Centre",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A huge hands-on science museum by the Vistula, fun at any age. Buy timed tickets online.",
+    "address": "Wybrzeże Kościuszkowskie 20, 00-390 Warszawa",
+    "lat": 52.2419,
+    "lng": 21.0287,
+    "duration": 150,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 50,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Copernicus_Science_Centre",
+    "addedBy": "claude",
+    "hours": {
+      "open": "09:00",
+      "close": "18:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-neon",
+    "title": "Neon Muzeum",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A quirky collection of rescued Cold War-era neon signs in the Soho Factory complex in Praga.",
+    "address": "Mińska 22, 03-808 Warszawa",
+    "lat": 52.2509,
+    "lng": 21.0597,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "13:00",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Neon_Muzeum",
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-praga",
+    "title": "Praga district walk",
+    "type": "tour",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "The grittier east bank: pre-war tenements, street art, Ząbkowska Street and the Koneser complex.",
+    "address": "Ząbkowska, 03-736 Warszawa",
+    "lat": 52.2537,
+    "lng": 21.041,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Praga",
+    "tags": [
+      "walk",
+      "street art"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-vodka",
+    "title": "Polish Vodka Museum tour & tasting",
+    "type": "tour",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A guided tour of vodka history in a restored 19th-century distillery, finishing with a tasting.",
+    "address": "plac Konesera 1, 03-736 Warszawa",
+    "lat": 52.2558,
+    "lng": 21.045,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "16:30",
+    "price": {
+      "amount": 80,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Polish_Vodka_Museum",
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-milk-bar",
+    "title": "Lunch at a milk bar (Bar Prasowy)",
+    "type": "food",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A cheap, cheerful communist-era canteen for pierogi, naleśniki and soups at local prices.",
+    "address": "Marszałkowska 10/16, 00-590 Warszawa",
+    "lat": 52.2177,
+    "lng": 21.0174,
+    "duration": 45,
+    "maxDuration": 75,
+    "suggestedStart": "12:30",
+    "price": {
+      "amount": 35,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Milk_bar",
+    "tags": [
+      "cheap eats"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-koszyki",
+    "title": "Dinner at Hala Koszyki food hall",
+    "type": "food",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A stylish restored market hall with lots of food stalls and bars. Easy for groups.",
+    "address": "Koszykowa 63, 00-667 Warszawa",
+    "lat": 52.2224,
+    "lng": 21.0118,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 80,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Hala_Koszyki",
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-chopin-museum",
+    "title": "Fryderyk Chopin Museum",
+    "type": "museum",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "A multimedia museum dedicated to Chopin, inside the Ostrogski Palace. Timed entry.",
+    "address": "Okólnik 1, 00-368 Warszawa",
+    "lat": 52.2365,
+    "lng": 21.0234,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 30,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Fryderyk_Chopin_Museum",
+    "addedBy": "claude",
+    "hours": {
+      "open": "11:00",
+      "close": "20:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "waw-chopin-recital",
+    "title": "Evening Chopin piano recital",
+    "type": "event",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "Small venues around the Old Town hold short nightly Chopin recitals. Book a day or two ahead.",
+    "address": "Old Town, Warsaw (venue varies)",
+    "lat": 52.2492,
+    "lng": 21.0135,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 100,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Frédéric_Chopin",
+    "tags": [
+      "music"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "waw-xmas",
+    "title": "Warsaw Christmas Market",
+    "type": "event",
+    "city": "warsaw",
+    "status": "idea",
+    "description": "Stalls, mulled wine (grzaniec) and lights stretching from the Old Town Market Square to the Barbican. Usually opens in late November: check dates.",
+    "address": "Rynek Starego Miasta / Barbakan, Warszawa",
+    "lat": 52.2507,
+    "lng": 21.0105,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Warsaw_Old_Town_Market_Place",
+    "tags": [
+      "christmas",
+      "evening"
+    ],
+    "addedBy": "claude"
+  }
+]

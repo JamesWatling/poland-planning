@@ -1,0 +1,273 @@
+[
+  {
+    "id": "wro-rynek",
+    "title": "Market Square & Gothic Town Hall",
+    "type": "sight",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A colourful market square with one of the finest Gothic town halls in Europe.",
+    "address": "Rynek, 50-106 Wrocław",
+    "lat": 51.11,
+    "lng": 17.032,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Market_Square,_Wrocław",
+    "tags": [
+      "walk"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-dwarfs",
+    "title": "Dwarf (krasnale) hunt",
+    "type": "tour",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "Hundreds of little bronze dwarfs are hidden around town. Grab a map and see how many you can spot.",
+    "address": "Starts at Rynek / Świdnicka, Wrocław",
+    "lat": 51.1095,
+    "lng": 17.0315,
+    "duration": 90,
+    "maxDuration": 150,
+    "suggestedStart": "11:30",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Wrocław's_dwarfs",
+    "tags": [
+      "walk",
+      "fun"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-ostrow",
+    "title": "Ostrów Tumski at dusk",
+    "type": "sight",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "The oldest part of the city. A lamplighter lights the gas lamps by hand at dusk. You can also climb the cathedral tower for the view.",
+    "address": "plac Katedralny 18, 50-329 Wrocław",
+    "lat": 51.1144,
+    "lng": 17.0466,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "15:15",
+    "price": {
+      "amount": 15,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Ostrów_Tumski,_Wrocław",
+    "tags": [
+      "sunset",
+      "romantic"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-panorama",
+    "title": "Racławice Panorama",
+    "type": "museum",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A colossal 114 m circular painting of a 1794 battle, shown with a short audio guide. Timed entry.",
+    "address": "Jana Ewangelisty Purkyniego 11, 50-155 Wrocław",
+    "lat": 51.11,
+    "lng": 17.0444,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Racławice_Panorama",
+    "addedBy": "claude",
+    "hours": {
+      "open": "09:00",
+      "close": "17:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "wro-xmas",
+    "title": "Wrocław Christmas Market",
+    "type": "event",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "One of Poland's best Christmas markets, filling the Market Square with stalls, a giant mug and lights. Usually opens late November.",
+    "address": "Rynek, 50-106 Wrocław",
+    "lat": 51.1098,
+    "lng": 17.031,
+    "duration": 120,
+    "maxDuration": 180,
+    "suggestedStart": "17:00",
+    "price": {
+      "amount": 0,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "christmas",
+      "evening"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-centennial",
+    "title": "Centennial Hall & Pergola",
+    "type": "sight",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A UNESCO-listed 1913 concrete dome with a modernist pergola next door.",
+    "address": "Wystawowa 1, 51-618 Wrocław",
+    "lat": 51.1069,
+    "lng": 17.0772,
+    "duration": 75,
+    "maxDuration": 120,
+    "suggestedStart": "13:00",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Centennial_Hall",
+    "tags": [
+      "UNESCO"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-zoo",
+    "title": "Wrocław Zoo & Afrykarium",
+    "type": "museum",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "Poland's oldest zoo, with the Afrykarium indoor oceanarium (hippos, sharks, manatees). A great warm indoor option.",
+    "address": "Wróblewskiego 1-5, 51-618 Wrocław",
+    "lat": 51.1043,
+    "lng": 17.0745,
+    "duration": 180,
+    "maxDuration": 240,
+    "suggestedStart": "10:00",
+    "price": {
+      "amount": 60,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Wrocław_Zoo",
+    "addedBy": "claude",
+    "hours": {
+      "open": "09:00",
+      "close": "16:00"
+    },
+    "hoursApprox": true
+  },
+  {
+    "id": "wro-leopoldina",
+    "title": "University: Aula Leopoldina & Mathematical Tower",
+    "type": "sight",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A dazzling baroque hall plus a tower with city views.",
+    "address": "plac Uniwersytecki 1, 50-137 Wrocław",
+    "lat": 51.114,
+    "lng": 17.0345,
+    "duration": 60,
+    "maxDuration": 90,
+    "suggestedStart": "12:30",
+    "price": {
+      "amount": 25,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "University_of_Wrocław",
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-hydropolis",
+    "title": "Hydropolis water science centre",
+    "type": "museum",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A slick interactive museum all about water, inside a 19th-century reservoir.",
+    "address": "Na Grobli 17, 50-421 Wrocław",
+    "lat": 51.1046,
+    "lng": 17.0566,
+    "duration": 120,
+    "maxDuration": 150,
+    "suggestedStart": "14:00",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Hydropolis",
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-hala-targowa",
+    "title": "Hala Targowa market hall",
+    "type": "food",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "A 1908 market hall for snacks, pickles and a cheap local lunch.",
+    "address": "Piaskowa 17, 50-158 Wrocław",
+    "lat": 51.1127,
+    "lng": 17.0396,
+    "duration": 45,
+    "maxDuration": 75,
+    "suggestedStart": "12:30",
+    "price": {
+      "amount": 40,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "tags": [
+      "cheap eats"
+    ],
+    "addedBy": "claude"
+  },
+  {
+    "id": "wro-dinner",
+    "title": "Polish dinner on the Market Square",
+    "type": "food",
+    "city": "wroclaw",
+    "status": "idea",
+    "description": "Pierogi and żurek in a cellar restaurant around the Rynek.",
+    "address": "Rynek, 50-106 Wrocław",
+    "lat": 51.1102,
+    "lng": 17.0325,
+    "duration": 90,
+    "maxDuration": 120,
+    "suggestedStart": "19:00",
+    "price": {
+      "amount": 100,
+      "currency": "PLN",
+      "per": "person",
+      "approx": true
+    },
+    "wiki": "Żurek",
+    "addedBy": "claude"
+  }
+]
